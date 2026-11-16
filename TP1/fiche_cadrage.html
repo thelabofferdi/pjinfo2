@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>TP1 — Fiche de cadrage</title>
+<style>
+  @page { size: A4; margin: 17mm 18mm 15mm 18mm; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Liberation Sans", Arial, sans-serif; font-size: 9pt; line-height: 1.3; color: #000; margin: 0; }
+  .tete { text-align: center; margin-bottom: 8pt; }
+  .tete .petit { font-size: 8pt; }
+  .tete h1 { font-size: 13.5pt; margin: 2pt 0 2pt; }
+  .tete .date { font-size: 8pt; }
+  .tete .groupe { font-size: 8pt; margin-top: 4pt; }
+  h2 { font-size: 10pt; margin: 11pt 0 3.5pt; page-break-after: avoid; }
+  p { margin: 0 0 4pt; text-align: justify; }
+  .lignes p { margin: 0; line-height: 1.45; text-align: left; }
+  .note { font-size: 7.8pt; font-style: italic; color: #333; }
+  table { width: 100%; border-collapse: collapse; font-size: 7.8pt; margin: 1pt 0 4pt; }
+  th, td { border: 0.4pt solid #666; padding: 2.2pt 3.5pt; vertical-align: top; text-align: left; }
+  th { font-weight: bold; }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
+  .a-relever { font-style: italic; }
+  footer { margin-top: 6pt; font-size: 7.5pt; color: #444; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="tete">
+  <div class="petit">Projet informatique 2 — L3 SIL</div>
+  <h1>Fiche de cadrage : application de gestion des stages</h1>
+  <div class="date">TP1 — version 1.1 — 16 novembre 2026</div>
+  <div class="groupe">Groupe : [NOM 1], [NOM 2], [NOM 3], [NOM 4] — Dépôt Git : https://github.com/thelabofferdi/pjinfo2</div>
+</div>
+
+<h2>1. Problème et valeur attendue</h2>
+<div class="lignes">
+<p>Problème : les dossiers de stage circulent encore en papier.</p>
+<p>Des validations se perdent et des pièces manquent à la première lecture.</p>
+<p>Aucun suivi ne dit, à un instant donné, où en est un dossier ni qui doit agir.</p>
+<p>Ces symptômes n'ont pas encore été mesurés : le relevé initial est décrit au §2.</p>
+<p>Valeur attendue : dépôt centralisé, dossiers complets du premier coup, affectations suivies.</p>
+</div>
+
+<h2>2. Indicateurs mesurables</h2>
+<table>
+  <thead><tr><th style="width:24%">Indicateur</th><th style="width:11%">Unité</th><th style="width:35%">Mode de mesure</th><th style="width:15%">Valeur initiale</th><th style="width:15%">Cible</th></tr></thead>
+  <tbody>
+    <tr><td>Délai moyen de validation d'un dossier</td><td>jours ouvrés (moyenne)</td><td>Écart entre date de dépôt et date de décision, relevé dossier par dossier puis moyenné</td><td class="a-relever">à relever</td><td>≤ 5 j</td></tr>
+    <tr><td>Taux de dossiers incomplets à la première lecture</td><td>% (renvoyés / déposés)</td><td>Nombre de dossiers renvoyés au moins une fois, divisé par le nombre de dossiers déposés</td><td class="a-relever">à relever</td><td>&lt; 10 %</td></tr>
+    <tr><td>Taux de dossiers validés sans encadreur affecté</td><td>% (sans encadreur / validés)</td><td>Comptage, à la clôture de la campagne, des dossiers validés dont la ligne « encadreur » est vide</td><td class="a-relever">à relever</td><td>0 %</td></tr>
+  </tbody>
+</table>
+<p class="note"><b>Relevé initial</b> — à réaliser avant toute mise en service : sources = registres de dépôt et tableau de suivi du secrétariat ; échantillon = 20 dossiers de la dernière campagne ; auteur et date = [nom, date]. Aucune valeur du tableau n'est mesurée à ce jour : les trois colonnes « valeur initiale » restent vides jusqu'à ce relevé, et les cibles ne seront comparées qu'à ce moment-là.</p>
+
+<h2>3. Parties prenantes et attentes</h2>
+<table>
+  <thead><tr><th style="width:26%">Partie prenante</th><th style="width:58%">Attente principale</th><th style="width:16%">Dans le MVP</th></tr></thead>
+  <tbody>
+    <tr><td>Étudiant</td><td>Déposer son dossier complet une seule fois et suivre son état sans relancer le secrétariat</td><td>Oui</td></tr>
+    <tr><td>Secrétariat</td><td>Vérifier les pièces et affecter un encadreur sans relance téléphonique</td><td>Oui</td></tr>
+    <tr><td>Responsable pédagogique</td><td>Décider vite, avec un motif tracé en cas de refus</td><td>Oui</td></tr>
+    <tr><td>Encadreur</td><td>Consulter la liste des étudiants qui lui sont affectés</td><td>Oui (consultation)</td></tr>
+    <tr><td>Administrateur technique</td><td>Gérer les comptes et les rôles, garder la base sauvegardée</td><td>Oui (comptes)</td></tr>
+    <tr><td>Entreprise d'accueil</td><td>Déposer elle-même ses offres de stage</td><td>Non — v2</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Périmètre du produit minimal (MVP)</h2>
+<table>
+  <thead><tr><th style="width:5%">N°</th><th style="width:30%">Élément</th><th style="width:13%">Statut</th><th style="width:52%">Justification</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Authentification et rôles (étudiant, secrétariat, responsable, encadreur, admin)</td><td>Inclus</td><td>Prérequis de tout contrôle d'accès : sans identité fiable, rien n'est protégeable.</td></tr>
+    <tr><td>2</td><td>Dépôt d'une demande de stage par l'étudiant (BROUILLON vers SOUMISE)</td><td>Inclus</td><td>Cœur du problème : on remplace la circulation papier du dossier.</td></tr>
+    <tr><td>3</td><td>Validation ou refus motivé par le responsable (motif obligatoire)</td><td>Inclus</td><td>Mesure l'indicateur n° 1 ; le motif conditionne la traçabilité des décisions.</td></tr>
+    <tr><td>4</td><td>Affectation d'un encadreur à une demande validée</td><td>Inclus</td><td>Mesure l'indicateur n° 3 ; étape aujourd'hui suivie hors de tout outil.</td></tr>
+    <tr><td>5</td><td>Consultation par l'étudiant de l'état de ses demandes et de l'historique des décisions</td><td>Inclus</td><td>Supprime les relances et rend la décision vérifiable par l'intéressé.</td></tr>
+    <tr><td>6</td><td>Journal des décisions (historique des changements de statut)</td><td>Inclus</td><td>Support des preuves de test ; la table est déjà nécessaire à la transaction.</td></tr>
+    <tr><td>7</td><td>Programmation et gestion des soutenances</td><td>Exclu</td><td>Hors du périmètre retenu : le projet porte sur la gestion des stages ; reporté en v2.</td></tr>
+    <tr><td>8</td><td>Paiement en ligne des frais de stage</td><td>Exclu</td><td>Prestataire externe et risque de sécurité hors de portée d'un projet de 25 h.</td></tr>
+    <tr><td>9</td><td>Notifications SMS de rappel</td><td>Exclu</td><td>Coût par envoi, aucune passerelle en local ; l'affichage de l'état couvre le besoin.</td></tr>
+    <tr><td>10</td><td>Portail entreprise (dépôt d'offres par les entreprises)</td><td>Exclu</td><td>Ajoute un acteur et un workflow entier : hors du problème traité, reporté en v2.</td></tr>
+    <tr><td>11</td><td>Convention de stage PDF signée électroniquement</td><td>Exclu</td><td>Suppose un composant externe et un cadre juridique ; le besoin est couvert par l'élément 3.</td></tr>
+    <tr><td>12</td><td>Messagerie interne entre acteurs</td><td>Exclu</td><td>Fonction de confort, sans effet sur les indicateurs ; première candidate à la dette technique.</td></tr>
+  </tbody>
+</table>
+
+<h2>5. Objectifs SMART</h2>
+<table>
+  <thead><tr><th style="width:31%">Objectif</th><th style="width:17%">Mesure</th><th style="width:22%">Test</th><th style="width:11%">Seuil</th><th style="width:19%">Preuve</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>O1. Ramener à 5 jours ouvrés au plus le délai moyen de validation (dépôt complet vers décision), la valeur de départ étant celle du relevé initial, mesure sur les 20 dossiers traités entre le 01/02/2027 et le 30/04/2027.</td>
+      <td>Jours ouvrés, moyenne sur 20 dossiers</td>
+      <td>Écart dépôt / décision relevé dossier par dossier, puis moyenne</td>
+      <td>≤ 5 j</td>
+      <td>Tableau de relevé daté et capture</td>
+    </tr>
+    <tr>
+      <td>O2. Ramener à moins de 10 % la part des dossiers incomplets à la première lecture, sur au moins 40 dossiers de la promotion 2026-2027, au 30/06/2027, à partir du taux relevé au cadrage.</td>
+      <td>% = renvoyés / déposés</td>
+      <td>Comptage des dossiers renvoyés au moins une fois, rapporté aux dossiers déposés</td>
+      <td>&lt; 10 %</td>
+      <td>Tableau de relevé et journal des renvois</td>
+    </tr>
+    <tr>
+      <td>O3. Garantir qu'aucun dossier validé ne reste sans encadreur à la clôture de la campagne 2026-2027 (contrôle au 30/06/2027), sur l'ensemble des dossiers validés.</td>
+      <td>% = sans encadreur / validés</td>
+      <td>Requête sur les dossiers validés dont la ligne « encadreur » est vide, à la clôture</td>
+      <td>0 %</td>
+      <td>Sortie de requête et liste des dossiers concernés</td>
+    </tr>
+  </tbody>
+</table>
+<p class="note">Chaque objectif est spécifique (un seul phénomène), mesurable (unité et échantillon fixés), atteignable et réaliste (aucune ressource supplémentaire) et daté (échéance de mesure explicite). Les seuils sont des engagements du groupe ; les valeurs de départ seront celles du relevé initial du §2.</p>
+
+<h2>6. Risques, hypothèses et contraintes</h2>
+<table>
+  <thead><tr><th style="width:21%">Risque</th><th style="width:4%">P</th><th style="width:4%">I</th><th style="width:8%">Criticité</th><th style="width:26%">Action préventive</th><th style="width:24%">Repli</th><th style="width:13%">Propriétaire</th></tr></thead>
+  <tbody>
+    <tr><td>Serveur MySQL / MariaDB indisponible</td><td>2</td><td>3</td><td>6</td><td>MariaDB local dès la séance 1 ; test de connexion à chaque séance</td><td>Restaurer le dump de la veille ; travail sur le jeu d'essai</td><td>Administrateur</td></tr>
+    <tr><td>Conflit Git en fin de projet</td><td>3</td><td>2</td><td>6</td><td>Branches courtes, fusions fréquentes après revue</td><td>Retour au dernier commit stable (tag), branche neuve</td><td>Chef de projet</td></tr>
+    <tr><td>Fuite de données réelles</td><td>1</td><td>3</td><td>3</td><td>Données fictives, .env non versionné, compte SQL dédié</td><td>Purge de la base et régénération du jeu d'essai</td><td>Tous</td></tr>
+    <tr><td>Retard sur le socle technique (membre indisponible)</td><td>2</td><td>2</td><td>4</td><td>Cartes de moins d'une séance ; binôme sur chaque couche</td><td>Abandon des exigences Should pour tenir les Must</td><td>Chef de projet</td></tr>
+  </tbody>
+</table>
+<p class="note">P et I sont des appréciations du groupe sur une échelle de 1 à 3 (criticité = P × I), réévaluées à chaque jalon : ce ne sont pas des mesures.</p>
+<p><b>Contraintes :</b> environnement Windows, réseau local, budget de 25 heures, groupe de 4, données fictives exclusivement, aucun serveur en production.</p>
+<p><b>Hypothèses (à vérifier) :</b> PHP 8 et MariaDB disponibles sur chaque poste ; le secrétariat accepte de saisir la date de dépôt dans l'application ; les dossiers de l'échantillon sont accessibles pour le relevé.</p>
+
+<h2>7. Relecture par un autre groupe</h2>
+<table>
+  <thead><tr><th style="width:5%">N°</th><th style="width:37%">Remarque du groupe relecteur</th><th style="width:24%">Point jugé ambigu</th><th style="width:34%">Décision du groupe (corrigé ou justifié)</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>&nbsp;</td><td></td><td></td></tr>
+    <tr><td>2</td><td>&nbsp;</td><td></td><td></td></tr>
+    <tr><td>3</td><td>&nbsp;</td><td></td><td></td></tr>
+  </tbody>
+</table>
+<p class="note">Chaque remarque du groupe relecteur est soit corrigée dans cette fiche, soit justifiée par écrit.</p>
+
+<footer>Projet informatique 2 — L3 SIL — Fiche de cadrage (TP1) — 16/11/2026 — github.com/thelabofferdi/pjinfo2</footer>
+
+</body>
+</html>
