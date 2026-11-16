@@ -30,8 +30,8 @@
 <div class="tete">
   <div class="petit">Projet informatique 2 — L3 SIL</div>
   <h1>Fiche de cadrage : application de gestion des stages</h1>
-  <div class="date">TP1 — version 1.1 — 16 novembre 2026</div>
-  <div class="groupe">Groupe : [NOM 1], [NOM 2], [NOM 3], [NOM 4] — Dépôt Git : https://github.com/thelabofferdi/pjinfo2</div>
+  <div class="date">TP1 — 16 novembre 2026</div>
+  <div class="groupe">Groupe : ABDOULAYE Mansouratou – KOUAGOU Fernandez – YACOUBOU FAISSOL<br>Dépôt Git : https://github.com/thelabofferdi/pjinfo2</div>
 </div>
 
 <h2>1. Problème et valeur attendue</h2>
@@ -47,12 +47,11 @@
 <table>
   <thead><tr><th style="width:24%">Indicateur</th><th style="width:11%">Unité</th><th style="width:35%">Mode de mesure</th><th style="width:15%">Valeur initiale</th><th style="width:15%">Cible</th></tr></thead>
   <tbody>
-    <tr><td>Délai moyen de validation d'un dossier</td><td>jours ouvrés (moyenne)</td><td>Écart entre date de dépôt et date de décision, relevé dossier par dossier puis moyenné</td><td class="a-relever">à relever</td><td>≤ 5 j</td></tr>
-    <tr><td>Taux de dossiers incomplets à la première lecture</td><td>% (renvoyés / déposés)</td><td>Nombre de dossiers renvoyés au moins une fois, divisé par le nombre de dossiers déposés</td><td class="a-relever">à relever</td><td>&lt; 10 %</td></tr>
+    <tr><td>Délai moyen de validation d'un dossier</td><td>Jours</td><td>Écart entre date de dépôt et date de décision, relevé dossier par dossier puis moyenné</td><td>semaines</td><td>≤ 5 j</td></tr>
+    <tr><td>Taux de dossiers incomplets à la première lecture</td><td>% (renvoyés / déposés)</td><td>Nombre de dossiers renvoyés au moins une fois, divisé par le nombre de dossiers déposés</td><td>70 %</td><td>&lt; 10 %</td></tr>
     <tr><td>Taux de dossiers validés sans encadreur affecté</td><td>% (sans encadreur / validés)</td><td>Comptage, à la clôture de la campagne, des dossiers validés dont la ligne « encadreur » est vide</td><td class="a-relever">à relever</td><td>0 %</td></tr>
   </tbody>
 </table>
-<p class="note"><b>Relevé initial</b> — à réaliser avant toute mise en service : sources = registres de dépôt et tableau de suivi du secrétariat ; échantillon = 20 dossiers de la dernière campagne ; auteur et date = [nom, date]. Aucune valeur du tableau n'est mesurée à ce jour : les trois colonnes « valeur initiale » restent vides jusqu'à ce relevé, et les cibles ne seront comparées qu'à ce moment-là.</p>
 
 <h2>3. Parties prenantes et attentes</h2>
 <table>
@@ -61,9 +60,9 @@
     <tr><td>Étudiant</td><td>Déposer son dossier complet une seule fois et suivre son état sans relancer le secrétariat</td><td>Oui</td></tr>
     <tr><td>Secrétariat</td><td>Vérifier les pièces et affecter un encadreur sans relance téléphonique</td><td>Oui</td></tr>
     <tr><td>Responsable pédagogique</td><td>Décider vite, avec un motif tracé en cas de refus</td><td>Oui</td></tr>
-    <tr><td>Encadreur</td><td>Consulter la liste des étudiants qui lui sont affectés</td><td>Oui (consultation)</td></tr>
+    <tr><td>Encadreur</td><td>Consulter la liste des étudiants qui lui sont affectés</td><td>Oui</td></tr>
     <tr><td>Administrateur technique</td><td>Gérer les comptes et les rôles, garder la base sauvegardée</td><td>Oui (comptes)</td></tr>
-    <tr><td>Entreprise d'accueil</td><td>Déposer elle-même ses offres de stage</td><td>Non — v2</td></tr>
+    <tr><td>Entreprise d'accueil</td><td>Déposer elle-même ses offres de stage</td><td>Non (à prendre en compte dans la v2)</td></tr>
   </tbody>
 </table>
 
@@ -91,21 +90,21 @@
   <thead><tr><th style="width:31%">Objectif</th><th style="width:17%">Mesure</th><th style="width:22%">Test</th><th style="width:11%">Seuil</th><th style="width:19%">Preuve</th></tr></thead>
   <tbody>
     <tr>
-      <td>O1. Ramener à 5 jours ouvrés au plus le délai moyen de validation (dépôt complet vers décision), la valeur de départ étant celle du relevé initial, mesure sur les 20 dossiers traités entre le 01/02/2027 et le 30/04/2027.</td>
+      <td>O1. Ramener à 5 jours ouvrés au plus le délai moyen de validation (dépôt complet vers décision), la valeur de départ étant celle du relevé initial, mesure sur les 20 dossiers traités entre le une période A et une période B.</td>
       <td>Jours ouvrés, moyenne sur 20 dossiers</td>
       <td>Écart dépôt / décision relevé dossier par dossier, puis moyenne</td>
       <td>≤ 5 j</td>
       <td>Tableau de relevé daté et capture</td>
     </tr>
     <tr>
-      <td>O2. Ramener à moins de 10 % la part des dossiers incomplets à la première lecture, sur au moins 40 dossiers de la promotion 2026-2027, au 30/06/2027, à partir du taux relevé au cadrage.</td>
+      <td>O2. Ramener à moins de 10 % la part des dossiers incomplets à la première lecture, sur au moins 40 dossiers de la promotion A, au B, à partir du taux relevé au cadrage.</td>
       <td>% = renvoyés / déposés</td>
       <td>Comptage des dossiers renvoyés au moins une fois, rapporté aux dossiers déposés</td>
       <td>&lt; 10 %</td>
       <td>Tableau de relevé et journal des renvois</td>
     </tr>
     <tr>
-      <td>O3. Garantir qu'aucun dossier validé ne reste sans encadreur à la clôture de la campagne 2026-2027 (contrôle au 30/06/2027), sur l'ensemble des dossiers validés.</td>
+      <td>O3. Garantir qu'aucun dossier validé ne reste sans encadreur à la clôture de la campagne d’une date A - B , sur l’ensemble des dossiers validés.</td>
       <td>% = sans encadreur / validés</td>
       <td>Requête sur les dossiers validés dont la ligne « encadreur » est vide, à la clôture</td>
       <td>0 %</td>
@@ -113,7 +112,6 @@
     </tr>
   </tbody>
 </table>
-<p class="note">Chaque objectif est spécifique (un seul phénomène), mesurable (unité et échantillon fixés), atteignable et réaliste (aucune ressource supplémentaire) et daté (échéance de mesure explicite). Les seuils sont des engagements du groupe ; les valeurs de départ seront celles du relevé initial du §2.</p>
 
 <h2>6. Risques, hypothèses et contraintes</h2>
 <table>
@@ -122,10 +120,8 @@
     <tr><td>Serveur MySQL / MariaDB indisponible</td><td>2</td><td>3</td><td>6</td><td>MariaDB local dès la séance 1 ; test de connexion à chaque séance</td><td>Restaurer le dump de la veille ; travail sur le jeu d'essai</td><td>Administrateur</td></tr>
     <tr><td>Conflit Git en fin de projet</td><td>3</td><td>2</td><td>6</td><td>Branches courtes, fusions fréquentes après revue</td><td>Retour au dernier commit stable (tag), branche neuve</td><td>Chef de projet</td></tr>
     <tr><td>Fuite de données réelles</td><td>1</td><td>3</td><td>3</td><td>Données fictives, .env non versionné, compte SQL dédié</td><td>Purge de la base et régénération du jeu d'essai</td><td>Tous</td></tr>
-    <tr><td>Retard sur le socle technique (membre indisponible)</td><td>2</td><td>2</td><td>4</td><td>Cartes de moins d'une séance ; binôme sur chaque couche</td><td>Abandon des exigences Should pour tenir les Must</td><td>Chef de projet</td></tr>
-  </tbody>
+      </tbody>
 </table>
-<p class="note">P et I sont des appréciations du groupe sur une échelle de 1 à 3 (criticité = P × I), réévaluées à chaque jalon : ce ne sont pas des mesures.</p>
 <p><b>Contraintes :</b> environnement Windows, réseau local, budget de 25 heures, groupe de 4, données fictives exclusivement, aucun serveur en production.</p>
 <p><b>Hypothèses (à vérifier) :</b> PHP 8 et MariaDB disponibles sur chaque poste ; le secrétariat accepte de saisir la date de dépôt dans l'application ; les dossiers de l'échantillon sont accessibles pour le relevé.</p>
 
@@ -138,7 +134,6 @@
     <tr><td>3</td><td>&nbsp;</td><td></td><td></td></tr>
   </tbody>
 </table>
-<p class="note">Chaque remarque du groupe relecteur est soit corrigée dans cette fiche, soit justifiée par écrit.</p>
 
 <footer>Projet informatique 2 — L3 SIL — Fiche de cadrage (TP1) — 16/11/2026 — github.com/thelabofferdi/pjinfo2</footer>
 
