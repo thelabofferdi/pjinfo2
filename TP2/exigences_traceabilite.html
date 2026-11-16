@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><title>TP2 — Exigences et matrice de traçabilité</title>
+<style>
+  @page { size: A4; margin: 17mm 18mm 15mm 18mm; }
+  body { font-family: "Liberation Sans", Arial, sans-serif; font-size: 9pt; line-height: 1.3; color: #000; margin: 0; }
+  .tete { text-align: center; margin-bottom: 8pt; }
+  .tete .petit, .tete .date, .tete .groupe { font-size: 8pt; }
+  .tete h1 { font-size: 13.5pt; margin: 2pt 0; }
+  h2 { font-size: 10pt; margin: 11pt 0 3.5pt; page-break-after: avoid; }
+  p { margin: 0 0 4pt; text-align: justify; }
+  .note { font-size: 7.8pt; font-style: italic; color: #333; }
+  table { width: 100%; border-collapse: collapse; font-size: 7.8pt; margin: 1pt 0 4pt; }
+  th, td { border: 0.4pt solid #666; padding: 2.2pt 3.5pt; vertical-align: top; text-align: left; }
+  th { font-weight: bold; }
+  thead { display: table-header-group; } tr { page-break-inside: avoid; }
+  footer { margin-top: 6pt; font-size: 7.5pt; color: #444; text-align: center; }
+</style></head><body>
+<div class="tete">
+  <div class="petit">Projet informatique 2 — L3 SIL</div>
+  <h1>Exigences et matrice de traçabilité</h1>
+  <div class="date">TP2 — 16 novembre 2026</div>
+  <div class="groupe">Groupe : ABDOULAYE Mansouratou – KOUAGOU Fernandez – YACOUBOU FAISSOL</div>
+</div>
+
+<h2>1. Méthode et périmètre</h2>
+<p>Source des besoins : entretiens avec le secrétariat et le responsable pédagogique, complétés par les constats du TP1.
+Chaque exigence porte un identifiant, un acteur et une priorité MoSCoW. Une exigence n'est considérée comme livrée que si un
+test identifié dans la matrice du point 5 la vérifie et qu'une preuve est conservée : sortie de requête, capture ou extrait de
+journal. Les statuts de la matrice sont « à faire » à ce stade du projet.</p>
+
+<h2>2. Exigences fonctionnelles</h2>
+<table>
+  <thead><tr><th style="width:9%">Id</th><th style="width:30%">Exigence</th><th style="width:13%">Acteur</th><th style="width:9%">Priorité</th><th style="width:39%">Vérification attendue</th></tr></thead>
+  <tbody>
+    <tr><td>EF-01</td><td>Se connecter avec un compte et un mot de passe</td><td>Tous</td><td>Must</td><td>200 et session ouverte ; 401 si identifiants faux</td></tr>
+    <tr><td>EF-02</td><td>Soumettre une demande de stage (entreprise, période, pièces)</td><td>Étudiant</td><td>Must</td><td>201 ; statut BROUILLON vers SOUMISE</td></tr>
+    <tr><td>EF-03</td><td>Valider une demande ou la refuser avec un motif obligatoire</td><td>Responsable</td><td>Must</td><td>200 ; 400 si motif vide ; 409 si statut incompatible</td></tr>
+    <tr><td>EF-04</td><td>Affecter un encadreur à une demande validée</td><td>Secrétariat</td><td>Must</td><td>200 ; 409 si la demande n'est pas validée</td></tr>
+    <tr><td>EF-05</td><td>Consulter la liste des étudiants qui lui sont affectés</td><td>Encadreur</td><td>Must</td><td>200 ; 403 si la liste demandée est celle d'un autre encadreur</td></tr>
+    <tr><td>EF-06</td><td>Consulter l'état de ses demandes et l'historique des décisions</td><td>Étudiant</td><td>Should</td><td>200 sur ses dossiers ; 403 sur le dossier d'un autre étudiant</td></tr>
+    <tr><td>EF-07</td><td>Rechercher un dossier par nom d'étudiant ou par statut</td><td>Secrétariat</td><td>Should</td><td>200 ; résultats strictement conformes au filtre</td></tr>
+    <tr><td>EF-08</td><td>Créer ou désactiver un compte et changer son rôle</td><td>Administrateur</td><td>Should</td><td>201 ou 200 ; 403 pour tout autre rôle</td></tr>
+  </tbody>
+</table>
+<p class="note">Les identifiants EF-01 à EF-08 sont stables : ils sont référencés dans les tests, les commits et les user stories.</p>
+
+<h2>3. Exigences non fonctionnelles</h2>
+<table>
+  <thead><tr><th style="width:10%">Id</th><th style="width:50%">Exigence</th><th style="width:40%">Mesure et seuil</th></tr></thead>
+  <tbody>
+    <tr><td>ENF-01</td><td>Toute lecture ou écriture d'un dossier vérifie l'autorisation côté serveur, jamais seulement dans l'interface.</td><td>Accès non autorisé : 403, corps sans aucune donnée du dossier.</td></tr>
+    <tr><td>ENF-02</td><td>Tous les champs reçus sont validés côté serveur (type, longueur, existence des clés étrangères).</td><td>Valeur invalide : 400, aucune écriture en base.</td></tr>
+    <tr><td>ENF-03</td><td>La sauvegarde de la base est testée par une restauration sur une base de test, avec comparaison des comptages.</td><td>Restauration réussie et COUNT(*) identiques à la base d'origine.</td></tr>
+  </tbody>
+</table>
+
+<h2>4. User stories et critères d'acceptation</h2>
+<p><b>US-01 — En tant qu'étudiant, je veux soumettre ma demande de stage afin qu'elle soit examinée par le responsable.</b></p>
+<table>
+  <thead><tr><th style="width:27%">Given</th><th style="width:27%">When</th><th style="width:46%">Then</th></tr></thead>
+  <tbody>
+    <tr><td>un étudiant connecté et un dossier complet</td><td>il soumet la demande</td><td>réponse 201, statut SOUMISE, une ligne ajoutée à l'historique</td></tr>
+    <tr><td>un étudiant connecté et une entreprise inexistante (id 999)</td><td>il soumet la demande</td><td>réponse 400, aucune demande créée (cas d'erreur)</td></tr>
+  </tbody>
+</table>
+<p><b>US-02 — En tant que responsable, je veux refuser une demande avec un motif afin que l'étudiant sache quoi corriger.</b></p>
+<table>
+  <thead><tr><th style="width:27%">Given</th><th style="width:27%">When</th><th style="width:46%">Then</th></tr></thead>
+  <tbody>
+    <tr><td>une demande au statut SOUMISE et un responsable connecté</td><td>il refuse la demande avec un motif</td><td>statut REFUSEE, motif enregistré, une ligne ajoutée à l'historique</td></tr>
+    <tr><td>une demande déjà au statut VALIDEE</td><td>il tente de la refuser</td><td>réponse 409, statut inchangé (cas d'erreur)</td></tr>
+  </tbody>
+</table>
+<p class="note">Chaque story comporte au moins un critère d'erreur : c'est ce critère qui produit les tests T-02, T-03 et T-04.</p>
+
+<h2>5. Matrice de traçabilité</h2>
+<table>
+  <thead><tr><th style="width:9%">Exigence</th><th style="width:29%">Composant</th><th style="width:31%">Test</th><th style="width:11%">Statut</th><th style="width:20%">Preuve attendue</th></tr></thead>
+  <tbody>
+    <tr><td>EF-01</td><td>AuthService, UtilisateurRepository</td><td>T-01 : mot de passe correct puis incorrect</td><td>à faire</td><td>Sortie des deux requêtes (200 et 401)</td></tr>
+    <tr><td>EF-02</td><td>DemandeController, DemandeService::creer, DemandeRepository::create</td><td>T-02 : dossier complet puis entreprise inconnue</td><td>à faire</td><td>Sorties 201 et 400, ligne créée une seule fois</td></tr>
+    <tr><td>EF-03</td><td>DemandeService::changerStatut</td><td>T-03 : refus sans motif ; T-04 : validation déjà validée</td><td>à faire</td><td>Sorties 400 et 409, statut inchangé</td></tr>
+    <tr><td>EF-04</td><td>DemandeService::affecter, DemandeRepository::setEncadreur</td><td>T-06 : affectation d'une demande non validée</td><td>à faire</td><td>Sortie 409, colonne encadreur vide</td></tr>
+    <tr><td>EF-05</td><td>DemandeRepository::findByEncadreur</td><td>T-07 : encadreur demandant la liste d'un autre</td><td>à faire</td><td>Sortie 403 sans donnée</td></tr>
+    <tr><td>EF-06</td><td>DemandeRepository::findByEtudiant, HistoriqueRepository</td><td>T-08 : étudiant consultant l'état de ses demandes et l'historique</td><td>à faire</td><td>Sortie 200, entrées d'historique conformes aux décisions</td></tr>
+    <tr><td>EF-07</td><td>DemandeRepository::rechercher</td><td>T-09 : filtre par statut, filtre par nom</td><td>à faire</td><td>Résultats conformes au filtre</td></tr>
+    <tr><td>EF-08</td><td>UtilisateurService::creer, UtilisateurRepository</td><td>T-10 : création par l'administrateur puis par un étudiant</td><td>à faire</td><td>Sorties 201 et 403</td></tr>
+    <tr><td>ENF-01</td><td>Toutes les lectures de dossier</td><td>T-05 : accès croisé entre deux étudiants</td><td>à faire</td><td>Sortie 403 sans donnée</td></tr>
+    <tr><td>ENF-02</td><td>Couche service, règles de validation</td><td>T-02, T-03 : champs vides ou incohérents</td><td>à faire</td><td>Sorties 400, aucune écriture</td></tr>
+    <tr><td>ENF-03</td><td>Procédure de sauvegarde</td><td>T-11 : mysqldump, suppression, restauration, COUNT(*)</td><td>à faire (TP9)</td><td>Journal de restauration et comptages</td></tr>
+  </tbody>
+</table>
+<p class="note">Lecture : une exigence sans test ni preuve reste « non livrée ». La colonne Statut passe à « fait » uniquement
+lorsque la sortie du test est conservée dans le dépôt.</p>
+
+<h2>6. Périmètre minimal pour 25 heures</h2>
+<table>
+  <thead><tr><th style="width:20%">Niveau</th><th style="width:32%">Exigences</th><th style="width:48%">Justification</th></tr></thead>
+  <tbody>
+    <tr><td>Must (garanti sur les 25 h)</td><td>EF-01 à EF-05, ENF-01 à ENF-03</td><td>Le socle du besoin : déposer, décider, affecter, consulter, et les trois garanties de qualité. Chaque Must a un test identifié dans la matrice.</td></tr>
+    <tr><td>Should (si marge restante)</td><td>EF-06, EF-07, EF-08</td><td>Confort d'usage : suivi par l'étudiant, recherche du secrétariat, gestion des comptes. Reportables sans casser le parcours principal.</td></tr>
+    <tr><td>Non retenu (v2)</td><td>Soutenances, notifications SMS, portail entreprise, paiement, convention signée, messagerie</td><td>Cohérent avec le périmètre du TP1 : chaque ajout suppose un acteur, un composant ou un prestataire externe supplémentaire.</td></tr>
+  </tbody>
+</table>
+<p class="note">Le découpage suit la règle du cours : on garantit les Must, on ajoute les Should si le temps le permet,
+et tout le reste est explicitement exclu pour la version 2.</p>
+
+<footer>Projet informatique 2 — L3 SIL — Exigences et matrice de traçabilité (TP2) — 16/11/2026 — github.com/thelabofferdi/pjinfo2</footer>
+</body></html>
