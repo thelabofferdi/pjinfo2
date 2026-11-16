@@ -1,0 +1,8 @@
+# Fichiers binaires : aucune fusion automatique, aucun diff texte.
+# Un .docx édité dans Word ne se fusionne pas : une seule personne l'édite
+# à la fois, et elle commit avant de le transmettre.
+*.docx binary
+*.doc   binary
+*.pdf   binary
+*.png   binary
+*.jpg   binary
