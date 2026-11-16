@@ -1,0 +1,22 @@
+# Secrets et configuration locale
+.env
+.env.local
+config/config.php
+
+# Dépendances
+vendor/
+node_modules/
+
+# Journaux et fichiers temporaires
+*.log
+*.tmp
+
+# Éditeurs et systèmes
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Support de cours fourni par l'enseignant : non diffusable sur un dépôt public
+Cours_L3_*.pdf
