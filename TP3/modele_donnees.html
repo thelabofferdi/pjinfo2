@@ -23,41 +23,36 @@
   <div class="petit">Projet informatique 2 — L3 SIL</div>
   <h1>UML et modélisation des données</h1>
   <div class="date">TP3 — 17 novembre 2026</div>
-  <div class="groupe">Groupe : ABDOULAYE Mansouratou – KOUAGOU Fernandez – YACOUBOU FAISSOL</div>
+  <div class="groupe">Groupe : ABDOULAYE Mansouratou – AHOUANSÉ Léa – KOUAGOU Fernandez – YACOUBOU FAISSOL</div>
 </div>
 
 <h2>1. Diagramme de cas d'utilisation</h2>
-<p>Cinq acteurs interagissent avec l'application. Chaque cas d'utilisation renvoie à une exigence fonctionnelle du TP2 ;
-tous supposent un utilisateur authentifié (EF-01), qui n'est donc pas représenté comme un cas autonome pour ne pas surcharger le diagramme.</p>
+<p>Trois acteurs, comme demandé : l'étudiant dépose et consulte, le responsable décide et affecte, l'administrateur gère les comptes.
+Chaque cas renvoie à une exigence du TP2 ; la connexion (EF-01) est commune aux trois acteurs et n'est pas représentée comme un cas autonome.</p>
 <figure><img src="cas_usage.png" style="width:80mm"></figure>
 <table>
   <thead><tr><th style="width:36%">Cas d'utilisation</th><th style="width:30%">Acteur principal</th><th style="width:34%">Exigence</th></tr></thead>
   <tbody>
-    <tr><td>Se connecter</td><td>Tous les acteurs</td><td>EF-01</td></tr>
     <tr><td>Soumettre une demande de stage</td><td>Étudiant</td><td>EF-02</td></tr>
     <tr><td>Consulter l'état de ses demandes</td><td>Étudiant</td><td>EF-06</td></tr>
     <tr><td>Valider ou refuser une demande</td><td>Responsable</td><td>EF-03</td></tr>
-    <tr><td>Affecter un encadreur</td><td>Secrétariat</td><td>EF-04</td></tr>
-    <tr><td>Rechercher un dossier</td><td>Secrétariat</td><td>EF-07</td></tr>
-    <tr><td>Consulter ses étudiants affectés</td><td>Encadreur</td><td>EF-05</td></tr>
+    <tr><td>Affecter un encadreur</td><td>Responsable</td><td>EF-04</td></tr>
+    <tr><td>Rechercher un dossier</td><td>Responsable</td><td>EF-07</td></tr>
     <tr><td>Gérer les comptes et les rôles</td><td>Administrateur</td><td>EF-08</td></tr>
   </tbody>
 </table>
 
 <h2>2. Diagramme de classes et multiplicités</h2>
-<p>Six classes suffisent au périmètre retenu. La classe Soutenance du fil rouge du cours n'apparaît pas : la programmation des
-soutenances est exclue du projet depuis le TP1 (reportée en v2).</p>
+<p>Cinq classes, conformément au cours. Le schéma SQL comporte en plus deux tables techniques — utilisateur (authentification et rôles)
+et historique (journal des décisions) — qui ne sont pas des classes métier et ne figurent donc pas sur ce diagramme.</p>
 <figure><img src="classes.png" style="width:120mm"></figure>
 <table>
   <thead><tr><th style="width:34%">Association et multiplicités</th><th style="width:66%">Traduction dans le schéma relationnel</th></tr></thead>
   <tbody>
-    <tr><td>Utilisateur 1 — 0..1 Étudiant</td><td>etudiant.utilisateur_id NOT NULL UNIQUE</td></tr>
-    <tr><td>Utilisateur 1 — 0..1 Encadreur</td><td>encadreur.utilisateur_id NOT NULL UNIQUE</td></tr>
-    <tr><td>Étudiant 1 — 0..* DemandeStage</td><td>demande_stage.etudiant_id NOT NULL (FK)</td></tr>
-    <tr><td>Entreprise 1 — 0..* DemandeStage</td><td>demande_stage.entreprise_id NOT NULL (FK)</td></tr>
-    <tr><td>Encadreur 1 — 0..* DemandeStage</td><td>demande_stage.encadreur_id NULL (FK, affectation optionnelle)</td></tr>
-    <tr><td>DemandeStage 1 — 0..* Historique</td><td>historique.demande_id NOT NULL (FK, ON DELETE CASCADE)</td></tr>
-    <tr><td>Utilisateur 1 — 0..* Historique</td><td>historique.auteur_id NOT NULL (FK)</td></tr>
+    <tr><td>Étudiant 1 — 1..* DemandeStage</td><td>demande_stage.etudiant_id NOT NULL (FK)</td></tr>
+    <tr><td>Entreprise 1 — 1..* DemandeStage</td><td>demande_stage.entreprise_id NOT NULL (FK)</td></tr>
+    <tr><td>Encadreur 0..1 — 0..* DemandeStage</td><td>demande_stage.encadreur_id NULL (FK : affectation après validation)</td></tr>
+    <tr><td>DemandeStage 1 — 0..1 Soutenance</td><td>soutenance.demande_id NOT NULL UNIQUE (FK)</td></tr>
   </tbody>
 </table>
 <p class="note">Règle appliquée : une association 1—0..* devient une clé étrangère du côté « plusieurs » ; une association 1—0..1
@@ -77,16 +72,23 @@ devient une clé étrangère déclarée UNIQUE, ce qui interdit deux fiches pour
     <tr><td>7</td><td>Contrôleur — réponse</td><td>—</td><td>200</td></tr>
   </tbody>
 </table>
-<p class="note">Les étapes 5 et 6 sont indissociables : le changement de statut et l'écriture dans l'historique forment une seule
-transaction (commit complet ou rollback complet).</p>
+<p><b>Ce qui se passe à chaque étape</b></p>
+<p><b>1. Vérifier la session</b> — Le contrôleur regarde si la requête arrive avec une session ouverte. Sans session, personne n'est identifié : on répond 401 et on s'arrête sans rien lire en base.</p>
+<p><b>2. Charger la demande</b> — Le dépôt exécute une requête préparée sur l'identifiant demandé. Si aucune ligne ne correspond, la réponse est 404 : la ressource n'existe pas, inutile de continuer.</p>
+<p><b>3. Vérifier l'autorisation</b> — Le service compare le rôle de l'utilisateur à celui qu'exige l'action. Un étudiant connecté reste sans droit : 403. C'est un contrôle côté serveur, pas un bouton masqué dans l'interface.</p>
+<p><b>4. Vérifier le statut</b> — Le service consulte la table des transitions autorisées (BROUILLON vers SOUMISE, SOUMISE vers VALIDEE ou REFUSEE). Valider une demande déjà validée n'a pas de sens métier : 409, et le statut ne bouge pas.</p>
+<p><b>5. Vérifier le motif</b> — Si la décision est un refus, le motif est obligatoire. Sans motif, l'étudiant ne saurait pas quoi corriger : 400, aucune écriture.</p>
+<p><b>6. Enregistrer dans une transaction</b> — Deux écritures vont ensemble : le nouveau statut et la ligne d'historique. Elles réussissent ensemble ou échouent ensemble ; si l'historique échoue, le statut est annulé (rollback) et la réponse est 500.</p>
+<p><b>7. Répondre</b> — Le contrôleur renvoie 200 avec l'état de la demande. Le détail technique d'une erreur reste dans le journal du serveur, jamais dans la réponse au client.</p>
+
 
 <h2>4. Schéma relationnel et scripts</h2>
 <p>Trois scripts versionnés reconstruisent la base à l'identique :</p>
 <table>
   <thead><tr><th style="width:24%">Fichier</th><th style="width:76%">Contenu</th></tr></thead>
   <tbody>
-    <tr><td>001_schema.sql</td><td>Création des six tables, clés primaires, clés étrangères, contraintes UNIQUE et CHECK, et vue v_dossiers_sans_encadreur.</td></tr>
-    <tr><td>002_seed.sql</td><td>Jeu d'essai fictif : 8 comptes, 3 étudiants, 2 encadreurs, 2 entreprises, 4 demandes (une par statut), 5 lignes d'historique.</td></tr>
+    <tr><td>001_schema.sql</td><td>Cinq tables métier (étudiant, entreprise, demande_stage, encadreur, soutenance) et deux tables techniques (utilisateur, historique) : clés primaires, clés étrangères, contraintes UNIQUE et CHECK, vue v_dossiers_sans_encadreur.</td></tr>
+    <tr><td>002_seed.sql</td><td>Jeu d'essai fictif : 8 comptes, 3 étudiants, 2 encadreurs, 2 entreprises, 4 demandes (une par statut), 1 soutenance, 5 lignes d'historique.</td></tr>
     <tr><td>003_verification.sql</td><td>Contrôles de chargement : comptages par table, répartition par statut, dossiers sans encadreur, cohérence de l'historique.</td></tr>
   </tbody>
 </table>
@@ -96,40 +98,53 @@ incohérente ne peut pas être enregistrée. Les scripts sont rejouables : le sc
 des dépendances.</p>
 
 <h2>5. Jeu d'essai et vérification</h2>
-<p>Résultat obtenu en exécutant les trois scripts sur une base vide, sous MariaDB 11.8.9 (conteneur Docker). Sortie brute de
-003_verification.sql :</p>
-<pre>+---------------+--------+
-| table_        | lignes |
-+---------------+--------+
-| utilisateur   |      8 |
-| etudiant      |      3 |
-| encadreur     |      2 |
-| entreprise    |      2 |
-| demande_stage |      4 |
-| historique    |      5 |
-+---------------+--------+
-+-----------+----------+
-| statut    | demandes |
-+-----------+----------+
-| BROUILLON |        1 |
-| SOUMISE   |        1 |
-| VALIDEE   |        1 |
-| REFUSEE   |        1 |
-+-----------+----------+
-+-------------------------+
-| dossiers_sans_encadreur |
-+-------------------------+
-|                       0 |
-+-------------------------+
-+----+------------+----------------+------------------------+
-| id | demande_id | nouveau_statut | auteur                 |
-+----+------------+----------------+------------------------+
-|  1 |          2 | SOUMISE        | aicha.bello@univ.test  |
-|  2 |          3 | SOUMISE        | marc.dossou@univ.test  |
-|  3 |          3 | VALIDEE        | resp.pedago@univ.test  |
-|  4 |          4 | SOUMISE        | koffi.adjovi@univ.test |
-|  5 |          4 | REFUSEE        | resp.pedago@univ.test  |
-+----+------------+----------------+------------------------+</pre>
+<p>Contrôles obtenus en exécutant les trois scripts sur une base vide, sous MariaDB 11.8.9. Ils sont reproductibles avec la
+commande <code>mariadb -u root stages &lt; 003_verification.sql</code>.</p>
+
+<p><b>a) Nombre de lignes par table</b></p>
+<table>
+  <thead><tr><th style="width:60%">Table</th><th style="width:40%">Lignes</th></tr></thead>
+  <tbody>
+    <tr><td>utilisateur</td><td>8</td></tr>
+    <tr><td>etudiant</td><td>3</td></tr>
+    <tr><td>encadreur</td><td>2</td></tr>
+    <tr><td>entreprise</td><td>2</td></tr>
+    <tr><td>demande_stage</td><td>4</td></tr>
+    <tr><td>soutenance</td><td>1</td></tr>
+    <tr><td>historique</td><td>5</td></tr>
+  </tbody>
+</table>
+
+<p><b>b) Répartition des demandes par statut</b></p>
+<table>
+  <thead><tr><th style="width:60%">Statut</th><th style="width:40%">Demandes</th></tr></thead>
+  <tbody>
+    <tr><td>BROUILLON</td><td>1</td></tr>
+    <tr><td>SOUMISE</td><td>1</td></tr>
+    <tr><td>VALIDEE</td><td>1</td></tr>
+    <tr><td>REFUSEE</td><td>1</td></tr>
+  </tbody>
+</table>
+
+<p><b>c) Indicateur de suivi du cadrage</b></p>
+<table>
+  <thead><tr><th style="width:60%">Indicateur</th><th style="width:40%">Valeur</th></tr></thead>
+  <tbody>
+    <tr><td>Dossiers validés sans encadreur</td><td>0</td></tr>
+  </tbody>
+</table>
+
+<p><b>d) Historique des décisions</b></p>
+<table>
+  <thead><tr><th style="width:9%">N°</th><th style="width:25%">Demande</th><th style="width:33%">Nouveau statut</th><th style="width:33%">Auteur</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>2</td><td>SOUMISE</td><td>aicha.bello@univ.test</td></tr>
+    <tr><td>2</td><td>3</td><td>SOUMISE</td><td>marc.dossou@univ.test</td></tr>
+    <tr><td>3</td><td>3</td><td>VALIDEE</td><td>resp.pedago@univ.test</td></tr>
+    <tr><td>4</td><td>4</td><td>SOUMISE</td><td>koffi.adjovi@univ.test</td></tr>
+    <tr><td>5</td><td>4</td><td>REFUSEE</td><td>resp.pedago@univ.test</td></tr>
+  </tbody>
+</table>
 
 <p><b>Contraintes éprouvées par des insertions invalides</b></p>
 <table>
@@ -139,9 +154,11 @@ des dépendances.</p>
     <tr><td>Entreprise inexistante</td><td>INSERT … entreprise_id = 999</td><td>ERROR 1452 : foreign key constraint fails (`fk_demande_entreprise`)</td><td>Aucune ligne créée</td></tr>
     <tr><td>Email en double</td><td>INSERT utilisateur avec un email existant</td><td>ERROR 1062 : Duplicate entry for key 'uk_utilisateur_email'</td><td>Aucune ligne créée</td></tr>
     <tr><td>Validée sans date de décision</td><td>INSERT … statut = 'VALIDEE', date_decision NULL</td><td>ERROR 4025 : CONSTRAINT `ck_demande_decision` failed</td><td>Aucune ligne créée</td></tr>
+    <tr><td>2e soutenance pour la même demande</td><td>INSERT … demande_id = 3</td><td>ERROR 1062 : Duplicate entry '3' for key 'uk_soutenance_demande'</td><td>Aucune ligne créée</td></tr>
+    <tr><td>Soutenance sur une demande inexistante</td><td>INSERT … demande_id = 999</td><td>ERROR 1452 : foreign key constraint fails (fk_soutenance_demande)</td><td>Aucune ligne créée</td></tr>
   </tbody>
 </table>
-<p class="note">Après les quatre tentatives, les comptages sont restés identiques (4 demandes, 8 utilisateurs) : aucune écriture
+<p class="note">Après les six tentatives, les comptages sont restés identiques (4 demandes, 8 utilisateurs, 1 soutenance) : aucune écriture
 partielle n'a été conservée.</p>
 
 <h2>6. Ce qui reste à faire</h2>

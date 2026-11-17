@@ -6,6 +6,7 @@
 SET NAMES utf8mb4;
 
 DROP TABLE IF EXISTS historique;
+DROP TABLE IF EXISTS soutenance;
 DROP TABLE IF EXISTS demande_stage;
 DROP TABLE IF EXISTS encadreur;
 DROP TABLE IF EXISTS etudiant;
@@ -82,6 +83,19 @@ CREATE TABLE demande_stage (
     REFERENCES encadreur (id) ON DELETE SET NULL,
   CONSTRAINT ck_demande_motif CHECK (statut <> 'REFUSEE' OR motif_refus IS NOT NULL),
   CONSTRAINT ck_demande_decision CHECK (statut IN ('BROUILLON','SOUMISE') OR date_decision IS NOT NULL)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Soutenance : une demande validée donne lieu à zéro ou une soutenance.
+-- Le UNIQUE sur demande_id traduit la multiplicité 0..1 de l'exercice.
+CREATE TABLE soutenance (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  demande_id INT UNSIGNED NOT NULL,
+  date_heure DATETIME     NOT NULL,
+  salle      VARCHAR(20)  NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_soutenance_demande (demande_id),
+  CONSTRAINT fk_soutenance_demande FOREIGN KEY (demande_id)
+    REFERENCES demande_stage (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Journal des décisions : une ligne par changement de statut.
