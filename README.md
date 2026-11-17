@@ -14,6 +14,7 @@ Application web de gestion des stages : dépôt des dossiers par les étudiants,
 | Dossier | Contenu |
 |---|---|
 | `TP1/` | Fiche de cadrage (`.docx` à rendre, `.pdf` pour lecture, `.html` source du rendu) |
+| `GUIDE.md` | Reproduire ce travail sur un autre projet : outils, commandes, pièges |
 
 ## Branches
 
