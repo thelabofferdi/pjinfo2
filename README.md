@@ -5,7 +5,7 @@ Application web de gestion des stages : dépôt des dossiers par les étudiants,
 | | |
 |---|---|
 | **Cours** | Projet informatique 2 — L3 SIL (10 chapitres, 25 h, 10 TP) |
-| **Groupe** | ABDOULAYE Mansouratou, KOUAGOU Fernandez, YACOUBOU FAISSOL (groupe de 3) |
+| **Groupe** | ABDOULAYE Mansouratou, AHOUANSÉ Léa, KOUAGOU Fernandez, YACOUBOU FAISSOL (groupe de 4) |
 | **Dépôt** | <https://github.com/thelabofferdi/pjinfo2> |
 | **Environnement** | PHP 8, MySQL ou MariaDB, Git — données fictives uniquement |
 
