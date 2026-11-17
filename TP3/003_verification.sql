@@ -7,6 +7,7 @@ UNION ALL SELECT 'etudiant',      COUNT(*) FROM etudiant
 UNION ALL SELECT 'encadreur',     COUNT(*) FROM encadreur
 UNION ALL SELECT 'entreprise',    COUNT(*) FROM entreprise
 UNION ALL SELECT 'demande_stage', COUNT(*) FROM demande_stage
+UNION ALL SELECT 'soutenance',    COUNT(*) FROM soutenance
 UNION ALL SELECT 'historique',    COUNT(*) FROM historique;
 
 SELECT statut, COUNT(*) AS demandes

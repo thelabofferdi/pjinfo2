@@ -1,7 +1,7 @@
 -- Projet informatique 2 — L3 SIL · Application de gestion des stages
 -- 002_seed.sql — jeu d'essai fictif (aucune donnée réelle)
 -- Attendu : 8 comptes, 3 étudiants, 2 encadreurs, 2 entreprises,
---           4 demandes (une par statut), 5 lignes d'historique.
+--           4 demandes (une par statut), 1 soutenance, 5 lignes d'historique.
 -- Mot de passe commun des comptes de démonstration : Demo1234!
 -- Empreinte produite par password_hash('Demo1234!', PASSWORD_DEFAULT) sous PHP 8.
 
@@ -37,6 +37,9 @@ INSERT INTO demande_stage (id, etudiant_id, entreprise_id, encadreur_id, statut,
   (3, 3, 2, 1,    'VALIDEE',   NULL, '2026-10-20 09:15:00', '2026-10-27 16:40:00'),
   (4, 1, 2, NULL, 'REFUSEE',   'Convention incomplète : signature de l''entreprise absente',
                                   '2026-10-05 11:00:00', '2026-10-09 14:20:00');
+
+INSERT INTO soutenance (demande_id, date_heure, salle) VALUES
+  (3, '2026-12-10 09:00:00', 'B12');
 
 INSERT INTO historique (demande_id, ancien_statut, nouveau_statut, auteur_id, motif, date_evenement) VALUES
   (2, NULL,      'SOUMISE', 2, NULL, '2026-11-02 10:00:00'),
