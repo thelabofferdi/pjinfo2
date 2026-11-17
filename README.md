@@ -25,6 +25,7 @@ Application web de gestion des stages : dépôt des dossiers par les étudiants,
 | `main` | Squelette du dépôt : `README.md`, `.gitignore` |
 | `tp1` | Fiche de cadrage du projet |
 | `tp2` | Exigences fonctionnelles et non fonctionnelles, matrice de traçabilité |
+| `tp3` | Modèle UML, scripts SQL et jeu d'essai vérifié |
 
 ## Périmètre retenu (v1)
 
@@ -40,4 +41,5 @@ portail entreprise, convention signée électroniquement, messagerie interne.
 |---|---|---|
 | TP1 | Fiche de cadrage (2 pages) | Fait |
 | TP2 | Exigences (EF, ENF) et matrice de traçabilité | Fait |
-| TP3 à TP10 | — | À venir |
+| TP3 | Diagrammes UML, schéma SQL, jeu d'essai | Fait |
+| TP4 à TP10 | — | À venir |
