@@ -1,0 +1,7 @@
+# Secrets locaux : jamais versionnés
+.env
+.env.local
+
+# Dépendances et journaux
+vendor/
+*.log

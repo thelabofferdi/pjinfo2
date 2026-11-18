@@ -1,0 +1,15 @@
+numero	cas	attendu	requete	obtenu	conforme	reponse
+S1	Connexion du responsable	200	POST /api/connexion	200	OUI	{"connecte":true,"role":"RESPONSABLE"}
+S2	Connexion de l'étudiante Aicha Bello	200	POST /api/connexion	200	OUI	{"connecte":true,"role":"ETUDIANT"}
+S3	Connexion avec un mauvais mot de passe	401	POST /api/connexion	401	OUI	{"erreur":"Identifiants incorrects."}
+S4	Création d'une demande par l'étudiante (entreprise 2)	201	POST /api/demandes	201	OUI	{"demande":{"id":5,"etudiant_id":2,"entreprise_id":2,"encadreur_id":null,"statut":"SOUMISE","motif_refus":null,"date_depot":"2026-11-18 13:29:42","date_decision":null}}
+S5	Succès : le responsable valide la demande 2 (SOUMISE vers VALIDEE)	200	PATCH /api/demandes/2/statut	200	OUI	{"demande":{"id":2,"etudiant_id":2,"entreprise_id":1,"encadreur_id":null,"statut":"VALIDEE","motif_refus":null,"date_depot":"2026-11-02 10:00:00","date_decision":"2026-11-18 13:29:42"}}
+S6	Erreur 400 : refus sans motif (demande 5)	400	PATCH /api/demandes/5/statut	400	OUI	{"erreur":"Motif de refus obligatoire."}
+S7	Erreur 401 : aucune session	401	PATCH /api/demandes/5/statut	401	OUI	{"erreur":"Authentification requise."}
+S8	Erreur 403 : l'étudiante tente de valider	403	PATCH /api/demandes/5/statut	403	OUI	{"erreur":"Ce rôle ne peut pas effectuer cette transition."}
+S9	Erreur 404 : demande inexistante (999)	404	PATCH /api/demandes/999/statut	404	OUI	{"erreur":"Demande introuvable."}
+S10	Erreur 409 : valider une demande déjà validée (demande 3)	409	PATCH /api/demandes/3/statut	409	OUI	{"erreur":"Transition VALIDEE vers VALIDEE interdite."}
+S11	Refus motivé par le responsable (demande 5)	200	PATCH /api/demandes/5/statut	200	OUI	{"demande":{"id":5,"etudiant_id":2,"entreprise_id":2,"encadreur_id":null,"statut":"REFUSEE","motif_refus":"Convention incomplète","date_depot":"2026-11-18 13:29:42","date_decision":"2026-11-18 13:29:42"}}
+S12	Liste des demandes par le responsable	200	GET /api/demandes	200	OUI	{"demandes":[{"id":1,"etudiant_id":1,"entreprise_id":1,"encadreur_id":null,"statut":"BROUILLON","motif_refus":null,"date_depot":null,"date_decision":null},{"id":2,"etudiant_id":2,"entreprise_id":1,"encadreur_id":null,"statut":"VALIDEE","motif_refus":null,"date_depot":"2026-11-02 10:00:00","date_decision":"2026-11-18 13:29:42"},{"id":3,"etudiant_id":3,"entreprise_id":2,"encadreur_id":1,"statut":"VALIDEE","motif_refus":null,"date_depot":"2026-10-20 09:15:00","date_decision":"2026-10-27 16:40:00"},{"id":4,"etudiant_id":1,"entreprise_id":2,"encadreur_id":null,"statut":"REFUSEE","motif_refus":"Convention incomplète : signature de l'entreprise absente","date_depot":"2026-10-05 11:00:00","date_decision":"2026-10-09 14:20:00"},{"id":5,"etudiant_id":2,"entreprise_id":2,"encadreur_id":null,"statut":"REFUSEE","motif_refus":"Convention incomplète","date_depot":"2026-11-18 13:29:42","date_decision":"2026-11-18 13:29:42"}]}
+S13	Liste réservée au personnel : refus pour l'étudiante	403	GET /api/demandes	403	OUI	{"erreur":"Accès interdit pour ce rôle."}
+S14	Entreprise inconnue à la création	400	POST /api/demandes	400	OUI	{"erreur":"Entreprise inconnue ou identifiant invalide."}

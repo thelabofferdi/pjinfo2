@@ -1,0 +1,19 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Http;
+
+final class Reponse
+{
+    public static function json(int $code, array $corps): void
+    {
+        http_response_code($code);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($corps, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    }
+
+    public static function erreur(int $code, string $message): void
+    {
+        self::json($code, ['erreur' => $message]);
+    }
+}
