@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><title>TP4 — Squelette technique et contrat d'API</title>
+<style>
+  @page { size: A4; margin: 17mm 18mm 15mm 18mm; }
+  body { font-family: "Liberation Sans", Arial, sans-serif; font-size: 9pt; line-height: 1.3; color: #000; margin: 0; }
+  .tete { text-align: center; margin-bottom: 8pt; }
+  .tete .petit, .tete .date, .tete .groupe { font-size: 8pt; }
+  .tete h1 { font-size: 13.5pt; margin: 2pt 0; }
+  h2 { font-size: 10pt; margin: 11pt 0 3.5pt; page-break-after: avoid; }
+  p { margin: 0 0 4pt; text-align: justify; }
+  .note { font-size: 7.8pt; font-style: italic; color: #333; }
+  table { width: 100%; border-collapse: collapse; font-size: 7.8pt; margin: 1pt 0 4pt; }
+  th, td { border: 0.4pt solid #666; padding: 2.2pt 3.5pt; vertical-align: top; text-align: left; }
+  th { font-weight: bold; } thead { display: table-header-group; } tr { page-break-inside: avoid; }
+  footer { margin-top: 6pt; font-size: 7.5pt; color: #444; text-align: center; }
+</style></head><body>
+<div class="tete">
+  <div class="petit">Projet informatique 2 — L3 SIL</div>
+  <h1>Squelette technique et contrat d'API</h1>
+  <div class="date">TP4 — 18 novembre 2026</div>
+  <div class="groupe">Groupe : ABDOULAYE Mansouratou – AHOUANSÉ Léa – KOUAGOU Fernandez – YACOUBOU FAISSOL<br>Dépôt Git : https://github.com/thelabofferdi/pjinfo2</div>
+</div>
+
+<h2>1. Objet</h2>
+<p>Squelette PHP 8 de l'application de gestion des stages : une route est implémentée (GET /api/sante), les trois autres routes du contrat sont déclarées et répondent 501. Le code est dans le dossier squelette/ du dépôt.</p>
+
+<h2>2. Séparation des couches</h2>
+<p>Une règle par couche : le contrôleur ne fait pas de métier, le service ne touche pas à SQL, seul le dépôt écrit des requêtes.</p>
+<table>
+  <thead><tr><th style="width:18%">Couche</th><th style="width:32%">Fichier</th><th style="width:50%">Rôle</th></tr></thead>
+  <tbody>
+    <tr><td>Contrôleur</td><td>src/Controllers/SanteController.php</td><td>Lit la requête, appelle le service, écrit la réponse. Aucune règle métier.</td></tr>
+    <tr><td>Service</td><td>src/Services/SanteService.php</td><td>Règle métier : l'application est disponible si la base répond. Capture l'erreur technique et la journalise.</td></tr>
+    <tr><td>Dépôt</td><td>src/Repositories/SanteRepository.php</td><td>Seule couche qui exécute du SQL (requête préparée SELECT 1).</td></tr>
+    <tr><td>Connexion</td><td>src/Repositories/Connexion.php</td><td>Création de la connexion PDO : exceptions activées, émulation désactivée, délai de 3 s.</td></tr>
+    <tr><td>Routage et réponses</td><td>src/Http/Routeur.php, Reponse.php</td><td>Table des routes du contrat, codes 404, 405, 501 et réponses JSON.</td></tr>
+    <tr><td>Point d'entrée</td><td>public/index.php</td><td>Unique fichier exposé. Assemble les couches et déclare les routes.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Arborescence du squelette</h2>
+<figure style="text-align:center;margin:2pt 0 4pt"><img src="../TP6/preuves/arborescence.png" style="width:12cm"><figcaption class="note">Arborescence du projet au niveau du TP6, générée à partir des fichiers réels du dossier TP6.</figcaption></figure>
+<table>
+  <thead><tr><th style="width:38%">Élément</th><th style="width:62%">Rôle</th></tr></thead>
+  <tbody>
+    <tr><td>public/</td><td>Point d'entrée index.php, seul dossier exposé au web</td></tr>
+    <tr><td>src/Controllers, Services, Repositories, Http/</td><td>Les couches du tableau ci-dessus</td></tr>
+    <tr><td>config/</td><td>config.php (lit .env ou l'environnement), autoload.php</td></tr>
+    <tr><td>tests/</td><td>test_connexion.php : ouvre la connexion et exécute SELECT 1</td></tr>
+    <tr><td>docs/</td><td>contrat_routes.md et ADR-001.md</td></tr>
+    <tr><td>.env.example</td><td>Valeurs factices, à copier en .env</td></tr>
+    <tr><td>.gitignore</td><td>Exclut .env, .env.local, vendor/, journaux</td></tr>
+    <tr><td>README.md</td><td>Prérequis, installation, lancement, test</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Contrat des routes</h2>
+<p>Écrit avant le code et partagé entre backend et frontend. Le détail de chaque route est dans squelette/docs/contrat_routes.md.</p>
+<table>
+  <thead><tr><th style="width:8%">Méthode</th><th style="width:22%">Chemin</th><th style="width:16%">Rôle</th><th style="width:22%">Corps</th><th style="width:8%">Succès</th><th style="width:12%">Erreurs</th><th style="width:12%">Statut</th></tr></thead>
+  <tbody>
+    <tr><td>GET</td><td>/api/sante</td><td>Public</td><td>—</td><td>200</td><td>500</td><td>Implémentée</td></tr>
+    <tr><td>GET</td><td>/api/demandes</td><td>Responsable, secrétariat</td><td>—</td><td>200</td><td>401, 403</td><td>501</td></tr>
+    <tr><td>POST</td><td>/api/demandes</td><td>Étudiant</td><td>{"entrepriseId": 3}</td><td>201</td><td>400, 401</td><td>501</td></tr>
+    <tr><td>PATCH</td><td>/api/demandes/{id}/statut</td><td>Responsable</td><td>{"statut":"VALIDEE"} ou {"statut":"REFUSEE","motif":"…"}</td><td>200</td><td>400, 403, 404, 409</td><td>501</td></tr>
+  </tbody>
+</table>
+
+<h2>5. Route de santé et vérifications</h2>
+<p>Résultats obtenus en exécutant le squelette sous PHP 8.3 (pdo_mysql) contre MariaDB 11.8, avec le schéma du TP3 chargé.
+Les 11 fichiers PHP passent php -l sans erreur de syntaxe.</p>
+<table>
+  <thead><tr><th style="width:22%">Cas</th><th style="width:24%">Requête ou commande</th><th style="width:10%">Résultat</th><th style="width:44%">Corps ou sortie</th></tr></thead>
+  <tbody>
+    <tr><td>Test de connexion, base active</td><td>tests/test_connexion.php</td><td>Code 0</td><td>« OK : connexion PDO établie et requête SELECT 1 réussie. »</td></tr>
+    <tr><td>Test de connexion, base arrêtée</td><td>tests/test_connexion.php</td><td>Code 1</td><td>Échec signalé sur la sortie d'erreur</td></tr>
+    <tr><td>Santé, base joignable</td><td>GET /api/sante</td><td>200</td><td>{"statut":"ok","base":"joignable"}</td></tr>
+    <tr><td>Santé, base arrêtée</td><td>GET /api/sante</td><td>500</td><td>{"statut":"indisponible","base":"injoignable"}. Le détail n'apparaît que dans le journal serveur.</td></tr>
+    <tr><td>Prérequis, conteneur sans Git</td><td>tests/verifier_prerequis.php</td><td>Code 1</td><td>PHP 8.3, pdo et pdo_mysql : OK ; Git : MANQUE (absent de l'image PHP). Sur un poste avec Git, le script renvoie code 0.</td></tr>
+    <tr><td>Route au contrat</td><td>GET /api/demandes</td><td>501</td><td>« Route prévue au contrat, non encore implémentée. »</td></tr>
+    <tr><td>Route au contrat</td><td>POST /api/demandes</td><td>501</td><td>Idem</td></tr>
+    <tr><td>Route au contrat</td><td>PATCH /api/demandes/3/statut</td><td>501</td><td>Idem</td></tr>
+    <tr><td>Méthode non prévue</td><td>DELETE /api/demandes</td><td>405</td><td>« Méthode non autorisée pour cette ressource. »</td></tr>
+    <tr><td>Chemin inconnu</td><td>GET /route/inconnue</td><td>404</td><td>« Ressource introuvable. »</td></tr>
+  </tbody>
+</table>
+<p class="note">Le coupage de la base a été simulé en arrêtant le conteneur MariaDB ; la route a répondu 500, puis 200 après redémarrage, sans relancer le serveur PHP.</p>
+
+<h2>6. Justification (preuve de travail)</h2>
+<p>Le squelette sépare les couches (contrôleur, service, dépôt) pour que la règle métier de disponibilité ne soit ni dans la route ni dans le SQL.
+La route de santé est testée contre une base active (200) et une base coupée (500), et le détail technique reste dans le journal.
+Les autres routes du contrat répondent 501 : elles sont prévues mais pas encore codées. Les commits correspondants seront ajoutés lors de la livraison.</p>
+
+<h2>7. Secrets et configuration</h2>
+<p>Les identifiants vivent dans un fichier .env local, exclu par .gitignore : la vérification git check-ignore confirme que .env est ignoré.
+.env.example ne contient que des valeurs factices. Les variables d'environnement, si elles sont définies, remplacent celles du fichier.</p>
+
+<h2>8. Fiche ADR-001</h2>
+<p>1. Contexte : équipe de quatre étudiants, 25 heures, déploiement local sur postes Windows, données fictives uniquement.</p>
+<p>2. Décision : monolithe modulaire en PHP 8, accès à la base par PDO (requêtes préparées, exceptions), sans framework.</p>
+<p>3. Conséquences : démarrage rapide et peu de dépendances ; le routage, la validation et la gestion d'erreurs sont écrits à la main, donc doivent être testés.</p>
+<p>4. Alternative écartée : mysqli, deux API selon le style, moins uniforme ; PDO fonctionne à l'identique sur MySQL et MariaDB.</p>
+<p>5. Statut : accepté. La route /api/sante répond 500 quand la base est injoignable, comme le prévoit le cours (§6.5) ; le corps {"statut":"indisponible"} distingue la panne d'une réponse saine.</p>
+
+<footer>Projet informatique 2 — L3 SIL — Squelette technique et contrat d'API (TP4) — 18/11/2026 — github.com/thelabofferdi/pjinfo2</footer>
+</body></html>
