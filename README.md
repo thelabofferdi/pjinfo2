@@ -14,6 +14,9 @@ Application web de gestion des stages : dépôt des dossiers par les étudiants,
 | Dossier | Contenu |
 |---|---|
 | `TP1/` | Fiche de cadrage (`.docx` à rendre, `.pdf` pour lecture, `.html` source du rendu) |
+| `TP2/` | Exigences et matrice de traçabilité |
+| `TP3/` | Diagrammes UML, scripts SQL, jeu d'essai |
+| `TP4/` | Squelette PHP, contrat des routes, ADR-001 |
 
 ## Branches
 
@@ -26,6 +29,11 @@ Application web de gestion des stages : dépôt des dossiers par les étudiants,
 | `tp1` | Fiche de cadrage du projet |
 | `tp2` | Exigences fonctionnelles et non fonctionnelles, matrice de traçabilité |
 | `tp3` | Modèle UML, scripts SQL et jeu d'essai vérifié |
+| `tp4` | Squelette technique, contrat d'API, ADR-001 (fusionné dans `main`) |
+| `tp6` | API des demandes : authentification, transitions, transaction, tests |
+| `tp7` | Interface web (pages étudiant et responsable) et scénario de bout en bout |
+
+Les branches `tp6` et `tp7` ne sont pas encore fusionnées dans `main`.
 
 ## Périmètre retenu (v1)
 
@@ -42,4 +50,8 @@ portail entreprise, convention signée électroniquement, messagerie interne.
 | TP1 | Fiche de cadrage (2 pages) | Fait |
 | TP2 | Exigences (EF, ENF) et matrice de traçabilité | Fait |
 | TP3 | Diagrammes UML, schéma SQL, jeu d'essai | Fait |
-| TP4 à TP10 | — | À venir |
+| TP4 | Squelette technique, contrat d'API, ADR-001 | Fait |
+| TP5 | Kanban, flux de branches, conflit résolu | Fait en local, non publié |
+| TP6 | API des demandes (14 cas testés) | Fait, branche `tp6` |
+| TP7 | Interface web et scénario de bout en bout (15 vérifications) | Fait, branche `tp7` |
+| TP8 à TP10 | — | À venir |
