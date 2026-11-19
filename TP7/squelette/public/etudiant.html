@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mes demandes de stage</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Mes demandes de stage</h1>
+
+  <form id="formulaire-depot" novalidate>
+    <h2>Déposer une demande</h2>
+    <div class="champ">
+      <label for="entrepriseId">Identifiant de l'entreprise</label>
+      <p id="aide-entreprise" class="aide">1 : Atelier Numerique (Porto-Novo) — 2 : Reseau Plus (Cotonou)</p>
+      <input id="entrepriseId" name="entrepriseId" type="number" min="1" inputmode="numeric"
+             aria-describedby="aide-entreprise erreur-entreprise">
+      <p id="erreur-entreprise" class="erreur" role="alert" hidden></p>
+    </div>
+    <p id="erreur-generale" class="erreur" role="alert" hidden></p>
+    <button type="submit">Déposer la demande</button>
+    <p id="confirmation" class="confirmation" role="status"></p>
+  </form>
+
+  <h2>Suivi de mes demandes</h2>
+  <p id="erreur-liste" class="erreur" role="alert" hidden></p>
+  <ul id="liste-demandes" aria-label="Mes demandes"></ul>
+</main>
+<script src="app.js"></script>
+<script>
+  const formulaire = document.getElementById('formulaire-depot');
+  const champ = document.getElementById('entrepriseId');
+  const erreurEntreprise = document.getElementById('erreur-entreprise');
+  const erreurGenerale = document.getElementById('erreur-generale');
+  const erreurListe = document.getElementById('erreur-liste');
+  const confirmation = document.getElementById('confirmation');
+  const liste = document.getElementById('liste-demandes');
+
+  async function chargerListe() {
+    const resultat = await appeler('GET', 'api/mes-demandes');
+    if (resultat.statut === 401) return allerVersConnexion();
+    if (resultat.statut !== 200) return afficher(erreurListe, texteDErreur(resultat));
+    const demandes = resultat.donnees.demandes;
+    if (demandes.length === 0) {
+      const vide = document.createElement('li');
+      vide.textContent = 'Aucune demande pour le moment.';
+      liste.replaceChildren(vide);
+      return;
+    }
+    liste.replaceChildren(...demandes.map(ligneDemande));
+  }
+
+  formulaire.addEventListener('submit', async (evenement) => {
+    evenement.preventDefault();
+    afficher(erreurEntreprise, '');
+    afficher(erreurGenerale, '');
+    champ.removeAttribute('aria-invalid');
+    confirmation.textContent = '';
+
+    const resultat = await appeler('POST', 'api/demandes', { entrepriseId: Number(champ.value) });
+    if (resultat.statut === 201) {
+      confirmation.textContent = `Demande n° ${resultat.donnees.demande.id} déposée.`;
+      champ.value = '';
+      return chargerListe();
+    }
+    if (resultat.statut === 401) return allerVersConnexion();
+    if (resultat.statut === 400) {
+      champ.setAttribute('aria-invalid', 'true');
+      return afficher(erreurEntreprise, resultat.donnees.erreur);
+    }
+    afficher(erreurGenerale, texteDErreur(resultat));
+  });
+
+  chargerListe();
+</script>
+</body>
+</html>

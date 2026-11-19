@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demandes à traiter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Demandes à traiter</h1>
+
+  <div class="champ">
+    <label for="filtre-statut">Afficher les demandes au statut</label>
+    <select id="filtre-statut">
+      <option value="">Toutes</option>
+      <option value="SOUMISE">Soumises</option>
+      <option value="VALIDEE">Validées</option>
+      <option value="REFUSEE">Refusées</option>
+      <option value="BROUILLON">Brouillons</option>
+    </select>
+  </div>
+
+  <p id="erreur-generale" class="erreur" role="alert" hidden></p>
+  <p id="confirmation" class="confirmation" role="status"></p>
+  <ul id="liste-demandes" aria-label="Demandes"></ul>
+</main>
+<script src="app.js"></script>
+<script>
+  const liste = document.getElementById('liste-demandes');
+  const filtre = document.getElementById('filtre-statut');
+  const erreurGenerale = document.getElementById('erreur-generale');
+  const confirmation = document.getElementById('confirmation');
+  let demandes = [];
+
+  function ligneResponsable(demande) {
+    const li = ligneDemande(demande);
+    if (demande.statut !== 'SOUMISE') return li;
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+
+    const valider = document.createElement('button');
+    valider.type = 'button';
+    valider.dataset.action = 'valider';
+    valider.dataset.id = String(demande.id);
+    valider.textContent = `Valider la demande n° ${demande.id}`;
+    actions.appendChild(valider);
+
+    const champ = document.createElement('div');
+    champ.className = 'champ';
+    const etiquette = document.createElement('label');
+    etiquette.htmlFor = `motif-${demande.id}`;
+    etiquette.textContent = `Motif du refus de la demande n° ${demande.id}`;
+    const zone = document.createElement('textarea');
+    zone.id = `motif-${demande.id}`;
+    zone.rows = 2;
+    zone.setAttribute('aria-describedby', `erreur-motif-${demande.id}`);
+    const erreur = document.createElement('p');
+    erreur.id = `erreur-motif-${demande.id}`;
+    erreur.className = 'erreur';
+    erreur.setAttribute('role', 'alert');
+    erreur.hidden = true;
+    champ.append(etiquette, zone, erreur);
+    actions.appendChild(champ);
+
+    const refuser = document.createElement('button');
+    refuser.type = 'button';
+    refuser.dataset.action = 'refuser';
+    refuser.dataset.id = String(demande.id);
+    refuser.textContent = `Refuser la demande n° ${demande.id}`;
+    actions.appendChild(refuser);
+
+    li.appendChild(actions);
+    return li;
+  }
+
+  function afficherListe() {
+    const choix = filtre.value;
+    const visibles = demandes.filter((d) => choix === '' || d.statut === choix);
+    if (visibles.length === 0) {
+      const vide = document.createElement('li');
+      vide.textContent = 'Aucune demande à afficher.';
+      liste.replaceChildren(vide);
+      return;
+    }
+    liste.replaceChildren(...visibles.map(ligneResponsable));
+  }
+
+  async function chargerListe() {
+    const resultat = await appeler('GET', 'api/demandes');
+    if (resultat.statut === 401) return allerVersConnexion();
+    if (resultat.statut !== 200) return afficher(erreurGenerale, texteDErreur(resultat));
+    demandes = resultat.donnees.demandes;
+    afficherListe();
+  }
+
+  filtre.addEventListener('change', afficherListe);
+
+  liste.addEventListener('click', async (evenement) => {
+    const bouton = evenement.target.closest('button[data-action]');
+    if (!bouton) return;
+    const id = bouton.dataset.id;
+    afficher(erreurGenerale, '');
+    afficher(confirmation, '');
+
+    if (bouton.dataset.action === 'valider') {
+      const resultat = await appeler('PATCH', `api/demandes/${id}/statut`, { statut: 'VALIDEE' });
+      if (resultat.statut === 200) {
+        afficher(confirmation, `Demande n° ${id} validée.`);
+        return chargerListe();
+      }
+      if (resultat.statut === 401) return allerVersConnexion();
+      return afficher(erreurGenerale, texteDErreur(resultat));
+    }
+
+    const zone = document.getElementById(`motif-${id}`);
+    const erreur = document.getElementById(`erreur-motif-${id}`);
+    afficher(erreur, '');
+    const resultat = await appeler('PATCH', `api/demandes/${id}/statut`, { statut: 'REFUSEE', motif: zone.value });
+    if (resultat.statut === 200) {
+      afficher(confirmation, `Demande n° ${id} refusée.`);
+      return chargerListe();
+    }
+    if (resultat.statut === 401) return allerVersConnexion();
+    if (resultat.statut === 400) {
+      zone.setAttribute('aria-invalid', 'true');
+      return afficher(erreur, resultat.donnees.erreur);
+    }
+    afficher(erreurGenerale, texteDErreur(resultat));
+  });
+
+  chargerListe();
+</script>
+</body>
+</html>
