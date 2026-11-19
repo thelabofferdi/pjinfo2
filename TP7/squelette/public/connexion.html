@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connexion — gestion des stages</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Connexion</h1>
+  <p id="message-session" class="erreur" role="alert" hidden></p>
+  <form id="formulaire-connexion" novalidate>
+    <div class="champ">
+      <label for="email">Adresse e-mail</label>
+      <input id="email" name="email" type="email" autocomplete="username">
+    </div>
+    <div class="champ">
+      <label for="motDePasse">Mot de passe</label>
+      <input id="motDePasse" name="motDePasse" type="password" autocomplete="current-password">
+    </div>
+    <p id="erreur-generale" class="erreur" role="alert" hidden></p>
+    <button type="submit">Se connecter</button>
+  </form>
+</main>
+<script src="app.js"></script>
+<script>
+  const message = sessionStorage.getItem('message-connexion');
+  if (message) {
+    sessionStorage.removeItem('message-connexion');
+    afficher(document.getElementById('message-session'), message);
+  }
+
+  const formulaire = document.getElementById('formulaire-connexion');
+  const erreurGenerale = document.getElementById('erreur-generale');
+  formulaire.addEventListener('submit', async (evenement) => {
+    evenement.preventDefault();
+    afficher(erreurGenerale, '');
+    const resultat = await appeler('POST', 'api/connexion', {
+      email: document.getElementById('email').value,
+      motDePasse: document.getElementById('motDePasse').value,
+    });
+    if (resultat.statut === 200) {
+      const cible = { ETUDIANT: 'etudiant.html', RESPONSABLE: 'responsable.html' }[resultat.donnees.role];
+      if (cible) {
+        window.location.href = cible;
+        return;
+      }
+      afficher(erreurGenerale, "Ce compte n'a pas d'espace dédié dans cette version.");
+      return;
+    }
+    afficher(erreurGenerale, texteDErreur(resultat));
+  });
+</script>
+</body>
+</html>

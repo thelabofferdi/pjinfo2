@@ -1,0 +1,16 @@
+numero	cas	attendu	obtenu	conforme	detail
+1	T1 Page étudiant sans session : redirection vers la connexion avec message (401)	true	true	OUI	Votre session a expiré. Reconnectez-vous.
+2	T2 Connexion de l'étudiante et arrivée sur sa page	true	true	OUI	
+3	T3 Entreprise inconnue : erreur 400 affichée près du champ	true	true	OUI	Entreprise inconnue ou identifiant invalide.
+4	T4 Dépôt de deux demandes (201) et affichage dans la liste	true	true	OUI	demandes 5 et 6
+5	T5 Formulaire accessible : chaque champ a une étiquette liée (for/id)	true	true	OUI	tous étiquetés
+6	T6 Base injoignable : message neutre affiché (500), sans détail technique	true	true	OUI	Le serveur n'a pas pu traiter la demande. Réessayez dans quelques minutes.
+7	T7 Connexion du responsable et étiquettes liées sur sa page	true	true	OUI	
+8	T8 Retrouver la demande par filtre (statut Soumise)	true	true	OUI	
+9	T9 Validation : Soumise vers Validée (200)	true	true	OUI	
+10	T10 Refus sans motif : erreur 400 affichée près du champ motif	true	true	OUI	Motif de refus obligatoire.
+11	T11 Refus motivé : la saisie HTML reste du texte (aucune exécution, aucune image créée)	true	true	OUI	{"xss":true,"images":0,"texte":true}
+12	T12 Après rafraîchissement : statuts Validée et Refusée conservés en base	true	true	OUI	
+13	T13 Côté étudiante : motif affiché comme texte, aucune exécution	true	true	OUI	{"xss":true,"images":0,"texte":true}
+14	T14 Étudiante sur la liste du personnel : 403	403	403	OUI	
+15	T15 Code de l'interface : aucun innerHTML, insertAdjacentHTML ni document.write	0	0	OUI	app.js, connexion.html, etudiant.html, responsable.html

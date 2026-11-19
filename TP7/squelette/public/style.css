@@ -1,0 +1,18 @@
+body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #1a1a1a; background: #fff; margin: 0; }
+main { max-width: 720px; margin: 0 auto; padding: 24px; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.2rem; margin-top: 1.8rem; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input, textarea, select { font: inherit; padding: 8px; border: 2px solid #555; border-radius: 4px; width: 100%; box-sizing: border-box; }
+input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #005fcc; outline-offset: 2px; }
+[aria-invalid="true"] { border-color: #8a0000; }
+.champ { margin-bottom: 16px; }
+.aide { font-size: .9rem; color: #333; margin: 4px 0 0; }
+.erreur { color: #8a0000; font-weight: bold; margin: 6px 0 0; }
+.confirmation { color: #0b5a14; font-weight: bold; }
+button { font: inherit; padding: 10px 16px; margin: 6px 6px 6px 0; border: 2px solid #1a1a1a; background: #fff; border-radius: 4px; cursor: pointer; }
+button:hover { background: #eee; }
+ul { padding-left: 0; list-style: none; }
+li { border-bottom: 1px solid #ccc; padding: 10px 0; }
+.statut { font-weight: bold; }
+[hidden] { display: none !important; }
