@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><title>TP6 — API des demandes de stage</title>
+<style>
+  @page { size: A4; margin: 17mm 18mm 15mm 18mm; }
+  body { font-family: "Liberation Sans", Arial, sans-serif; font-size: 9pt; line-height: 1.3; color: #000; margin: 0; }
+  .tete { text-align: center; margin-bottom: 8pt; }
+  .tete .petit, .tete .date, .tete .groupe { font-size: 8pt; }
+  .tete h1 { font-size: 13.5pt; margin: 2pt 0; }
+  h2 { font-size: 10pt; margin: 11pt 0 3.5pt; page-break-after: avoid; }
+  p { margin: 0 0 4pt; text-align: justify; }
+  .note { font-size: 7.8pt; font-style: italic; color: #333; }
+  table { width: 100%; border-collapse: collapse; font-size: 7.8pt; margin: 1pt 0 4pt; }
+  th, td { border: 0.4pt solid #666; padding: 2.2pt 3.5pt; vertical-align: top; text-align: left; }
+  th { font-weight: bold; } thead { display: table-header-group; } tr { page-break-inside: avoid; }
+  footer { margin-top: 6pt; font-size: 7.5pt; color: #444; text-align: center; }
+</style></head><body>
+<div class="tete">
+  <div class="petit">Projet informatique 2 — L3 SIL</div>
+  <h1>API des demandes de stage</h1>
+  <div class="date">TP6 — 18 novembre 2026</div>
+  <div class="groupe">Groupe : ABDOULAYE Mansouratou – AHOUANSÉ Léa – KOUAGOU Fernandez – YACOUBOU FAISSOL<br>Dépôt Git : https://github.com/thelabofferdi/pjinfo2</div>
+</div>
+<h2>1. Objet</h2>
+<p>Implémentation de la création, de la lecture et de la validation d'une demande, avec contrôles côté serveur. Sur 14 cas exécutés contre MariaDB 11.8 et l'API réelle, 14 sont conformes à l'attendu écrit avant le test.</p>
+<h2>2. Routes implémentées</h2>
+<table>
+  <thead><tr><th style="width:9%">Méthode</th><th style="width:27%">Chemin</th><th style="width:24%">Rôle</th><th style="width:10%">Succès</th><th style="width:30%">Erreurs</th></tr></thead>
+  <tbody>
+    <tr><td>POST</td><td>/api/connexion</td><td>Public</td><td>200</td><td>400, 401</td></tr>
+    <tr><td>GET</td><td>/api/demandes</td><td>Responsable, secrétariat</td><td>200</td><td>401, 403</td></tr>
+    <tr><td>POST</td><td>/api/demandes</td><td>Étudiant</td><td>201</td><td>400, 401, 403</td></tr>
+    <tr><td>GET</td><td>/api/mes-demandes</td><td>Étudiant</td><td>200</td><td>401, 403</td></tr>
+    <tr><td>PATCH</td><td>/api/demandes/{id}/statut</td><td>Selon la transition</td><td>200</td><td>400, 401, 403, 404, 409</td></tr>
+  </tbody>
+</table>
+<p class="note">La route /api/mes-demandes n'est pas dans le contrat du TP4 : elle a été ajoutée pour que l'étudiant voie ses propres dossiers.</p>
+<h2>3. Transitions autorisées</h2>
+<table>
+  <thead><tr><th style="width:36%">Transition</th><th style="width:20%">Qui</th><th style="width:44%">Règle</th></tr></thead>
+  <tbody>
+    <tr><td>BROUILLON vers SOUMISE</td><td>Étudiant</td><td>Soumission de la demande</td></tr>
+    <tr><td>SOUMISE vers VALIDEE</td><td>Responsable</td><td>Décision favorable</td></tr>
+    <tr><td>SOUMISE vers REFUSEE</td><td>Responsable</td><td>Motif obligatoire (400 sinon)</td></tr>
+    <tr><td>REFUSEE vers BROUILLON</td><td>Étudiant</td><td>L'étudiant corrige et soumet à nouveau</td></tr>
+  </tbody>
+</table>
+<p class="note">Table des transitions : Domaine/Transitions.php. Une transition absente de la table est refusée avec 409.</p>
+<h2>4. Cas testés (les six cas exigés, sorties réelles)</h2>
+<table>
+  <thead><tr><th style="width:8%">N°</th><th style="width:40%">Cas</th><th style="width:10%">Attendu</th><th style="width:10%">Obtenu</th><th style="width:32%">Réponse de l'API</th></tr></thead>
+  <tbody>
+    <tr><td>S5</td><td>Succès : le responsable valide la demande 2 (SOUMISE vers VALIDEE)</td><td>200</td><td>200</td><td>{"demande":{"id":2,"etudiant_id":2,"entreprise_id":1,"encadreur_id":null,"statut":"VALIDEE","motif_refus":null,"date_depot":"2026-11-02 10:00:00","date_decision":"2026-11-18 13:29:42"}}</td></tr>
+    <tr><td>S6</td><td>Erreur 400 : refus sans motif (demande 5)</td><td>400</td><td>400</td><td>{"erreur":"Motif de refus obligatoire."}</td></tr>
+    <tr><td>S7</td><td>Erreur 401 : aucune session</td><td>401</td><td>401</td><td>{"erreur":"Authentification requise."}</td></tr>
+    <tr><td>S8</td><td>Erreur 403 : l'étudiante tente de valider</td><td>403</td><td>403</td><td>{"erreur":"Ce rôle ne peut pas effectuer cette transition."}</td></tr>
+    <tr><td>S9</td><td>Erreur 404 : demande inexistante (999)</td><td>404</td><td>404</td><td>{"erreur":"Demande introuvable."}</td></tr>
+    <tr><td>S10</td><td>Erreur 409 : valider une demande déjà validée (demande 3)</td><td>409</td><td>409</td><td>{"erreur":"Transition VALIDEE vers VALIDEE interdite."}</td></tr>
+  </tbody>
+</table>
+<p class="note">Tous les cas du script sont listés dans preuves/sorties.tsv (14 cas, 14 conformes). Le script tests_api.sh recharge la base avant chaque exécution.</p>
+<h2>5. État de la base après les cas</h2>
+<table>
+  <thead><tr><th style="width:10%">Demande</th><th style="width:14%">Étudiant</th><th style="width:26%">Statut</th><th style="width:30%">Motif de refus</th><th style="width:20%">Décision</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>1</td><td>BROUILLON</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>2</td><td>VALIDEE</td><td>—</td><td>2026-11-18 13:29:42</td></tr>
+    <tr><td>3</td><td>3</td><td>VALIDEE</td><td>—</td><td>2026-10-27 16:40:00</td></tr>
+    <tr><td>4</td><td>1</td><td>REFUSEE</td><td>Convention incomplète : signature de l'entreprise absente</td><td>2026-10-09 14:20:00</td></tr>
+    <tr><td>5</td><td>2</td><td>REFUSEE</td><td>Convention incomplète</td><td>2026-11-18 13:29:42</td></tr>
+  </tbody>
+</table>
+<h2>6. Sécurité et cohérence</h2>
+<table>
+  <thead><tr><th style="width:22%">Point</th><th style="width:78%">Mise en œuvre</th></tr></thead>
+  <tbody>
+    <tr><td>Mots de passe</td><td>password_verify contre un hash password_hash ; message identique pour compte inconnu et mot de passe faux</td></tr>
+    <tr><td>Session</td><td>session_regenerate_id(true) à chaque connexion réussie (anti fixation)</td></tr>
+    <tr><td>Autorisation</td><td>Rôle contrôlé côté serveur à chaque requête ; un étudiant ne traite que ses demandes (403)</td></tr>
+    <tr><td>SQL</td><td>Requêtes préparées avec paramètres liés, FOR UPDATE sur la demande décidée</td></tr>
+    <tr><td>Transaction</td><td>Statut et historique dans une seule transaction ; rollback si une étape échoue</td></tr>
+    <tr><td>Erreurs</td><td>Le détail technique va dans le journal serveur ; le client reçoit un message neutre</td></tr>
+  </tbody>
+</table>
+<h2>7. Justification (preuve de travail)</h2>
+<p>Les six cas exigés ont été écrits avant exécution, puis joués sur une base rechargée. Toutes les réponses sont conformes. Un cas mal conçu a été corrigé avant ce rapport : la route des demandes de l'étudiant n'était pas dans le contrat et a été ajoutée. Les commits et les revues entre membres seront ajoutés lors de la livraison.</p>
+<footer>Projet informatique 2 — L3 SIL — API des demandes de stage (TP6) — 18/11/2026 — github.com/thelabofferdi/pjinfo2</footer>
+</body></html>

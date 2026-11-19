@@ -1,0 +1,8 @@
+id	etudiant_id	statut	motif_refus	date_decision
+1	1	BROUILLON	NULL	NULL
+2	2	VALIDEE	NULL	2026-11-18 13:29:42
+3	3	VALIDEE	NULL	2026-10-27 16:40:00
+4	1	REFUSEE	Convention incomplète : signature de l'entreprise absente	2026-10-09 14:20:00
+5	2	REFUSEE	Convention incomplète	2026-11-18 13:29:42
+lignes_historique
+8
