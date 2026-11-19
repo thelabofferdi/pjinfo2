@@ -7,28 +7,33 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main>
-  <h1>Connexion</h1>
-  <p id="message-session" class="erreur" role="alert" hidden></p>
-  <form id="formulaire-connexion" novalidate>
-    <div class="champ">
-      <label for="email">Adresse e-mail</label>
-      <input id="email" name="email" type="email" autocomplete="username">
-    </div>
-    <div class="champ">
-      <label for="motDePasse">Mot de passe</label>
-      <input id="motDePasse" name="motDePasse" type="password" autocomplete="current-password">
-    </div>
-    <p id="erreur-generale" class="erreur" role="alert" hidden></p>
-    <button type="submit">Se connecter</button>
-  </form>
+<header id="entete" class="entete"></header>
+<main class="centre">
+  <section class="carte" aria-labelledby="titre-connexion">
+    <h1 id="titre-connexion">Connexion</h1>
+    <p id="message-session" class="erreur" role="alert" hidden></p>
+    <form id="formulaire-connexion" novalidate>
+      <div class="champ">
+        <label for="email">Adresse e-mail</label>
+        <input id="email" name="email" type="email" autocomplete="username">
+      </div>
+      <div class="champ">
+        <label for="motDePasse">Mot de passe</label>
+        <input id="motDePasse" name="motDePasse" type="password" autocomplete="current-password">
+      </div>
+      <p id="erreur-generale" class="erreur" role="alert" hidden></p>
+      <button type="submit">Se connecter</button>
+    </form>
+  </section>
 </main>
 <script src="app.js"></script>
 <script>
+  enTete(null);
   const message = sessionStorage.getItem('message-connexion');
   if (message) {
     sessionStorage.removeItem('message-connexion');
     afficher(document.getElementById('message-session'), message);
+    if (message.includes('déconnecté')) document.getElementById('message-session').className = 'confirmation';
   }
 
   const formulaire = document.getElementById('formulaire-connexion');
@@ -41,7 +46,13 @@
       motDePasse: document.getElementById('motDePasse').value,
     });
     if (resultat.statut === 200) {
-      const cible = { ETUDIANT: 'etudiant.html', RESPONSABLE: 'responsable.html' }[resultat.donnees.role];
+      sessionStorage.setItem('role', resultat.donnees.role);
+      const cible = {
+        ETUDIANT: 'etudiant.html',
+        RESPONSABLE: 'responsable.html',
+        SECRETARIAT: 'secretariat.html',
+        ENCADREUR: 'encadreur.html',
+      }[resultat.donnees.role];
       if (cible) {
         window.location.href = cible;
         return;

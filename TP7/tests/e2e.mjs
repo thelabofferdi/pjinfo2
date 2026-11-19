@@ -220,10 +220,92 @@ try {
   const statutListe = await evaluer("fetch('api/demandes').then(r => r.status)");
   verifier('T14 Étudiante sur la liste du personnel : 403', 403, statutListe);
 
-  // T16 : aucune insertion de HTML brut dans le code de l'interface
+  // T15 à T18 : parcours de l'étudiante (brouillon, soumission, renvoi après refus, protection CSRF)
+  await aller('/etudiant.html');
+  await attendre("document.querySelectorAll('#liste-entreprises option').length >= 2");
+  await cliquer('#brouillon');
+  await remplir('#entrepriseId', '1');
+  await soumettre('#formulaire-depot');
+  await attendre("/brouillon/.test(document.getElementById('confirmation').textContent)");
+  const idC = Number((await texte('#confirmation')).match(/n° (\d+)/)[1]);
+  const statutBrouillon = await evaluer(`document.querySelector('#liste-demandes li[data-id="${idC}"]')?.dataset.statut`);
+  verifier('T15 Enregistrement en brouillon (statut Brouillon)', 'BROUILLON', statutBrouillon);
+
+  await cliquer(`button[data-action="soumettre"][data-id="${idC}"]`);
+  await attendre(`document.querySelector('#liste-demandes li[data-id="${idC}"]')?.dataset.statut === 'SOUMISE'`);
+  verifier('T16 Soumission du brouillon : statut Soumise', 'SOUMISE',
+    await evaluer(`document.querySelector('#liste-demandes li[data-id="${idC}"]')?.dataset.statut`));
+
+  await attendre(`document.querySelector('#liste-demandes li[data-id="${idB}"]')?.dataset.statut === 'REFUSEE'`);
+  await cliquer(`button[data-action="renvoyer"][data-id="${idB}"]`);
+  await attendre(`document.querySelector('#liste-demandes li[data-id="${idB}"]')?.dataset.statut === 'SOUMISE'`);
+  const motifRetire = !(await texte(`#liste-demandes li[data-id="${idB}"]`)).includes('Motif du refus');
+  verifier('T17 Renvoi d\'une demande refusée : Refusée, Brouillon, Soumise, motif retiré', true, motifRetire);
+
+  const sansJeton = await evaluer("fetch('api/demandes', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({entrepriseId: 1})}).then(r => r.status)");
+  verifier('T18 Action modifiant les données sans jeton CSRF : refusée (403)', 403, sansJeton);
+
+  // T19 : déconnexion depuis l'en-tête : retour à la connexion, puis session refusée
+  await cliquer('#entete button');
+  const deco = await attendre("location.pathname.endsWith('connexion.html')");
+  const apresDeco = await evaluer("fetch('api/mes-demandes').then(r => r.status)");
+  verifier('T19 Déconnexion : retour à la connexion et session refusée ensuite (401)', true, deco && apresDeco === 401, `statut après déconnexion : ${apresDeco}`);
+
+  // T20 à T26 : secrétariat, encadreur, mon compte, limitation des connexions
+  await aller('/connexion.html');
+  await remplir('#email', 'secretariat@univ.test');
+  await remplir('#motDePasse', 'Demo1234!');
+  await soumettre('#formulaire-connexion');
+  await attendre("location.pathname.endsWith('secretariat.html')");
+  await evaluer(`(() => { document.getElementById('filtre-statut').value = 'VALIDEE'; document.getElementById('formulaire-recherche').requestSubmit(); })()`);
+  await attendre(`!!document.querySelector('#liste-demandes li[data-id="${idA}"]') && !!document.getElementById('encadreur-${idA}')`);
+  await evaluer(`(() => { document.getElementById('encadreur-${idA}').value = '2'; })()`);
+  await cliquer(`button[data-action="affecter"][data-id="${idA}"]`);
+  await attendre("/affecté/.test(document.getElementById('confirmation').textContent)");
+  verifier('T20 Affectation d\'un encadreur à une demande validée (200)', true, /affecté/.test(await texte('#confirmation')));
+  await capturer('capture_secretariat_affectation.png');
+
+  await evaluer(`(() => { document.getElementById('filtre-statut').value = ''; document.getElementById('recherche-nom').value = 'bello'; document.getElementById('formulaire-recherche').requestSubmit(); })()`);
+  await attendre("!document.getElementById('liste-demandes').textContent.includes('DOSSOU')");
+  const parNom = await evaluer(`(() => { const lignes = [...document.querySelectorAll('#liste-demandes li[data-id]')]; return lignes.length > 0 && lignes.every((li) => li.textContent.includes('BELLO')); })()`);
+  verifier('T21 Recherche par nom d\'étudiant : seules les demandes correspondantes', true, parNom);
+
+  await aller(`/detail.html?id=${idA}`);
+  await attendre("document.querySelectorAll('#historique li').length >= 3");
+  const nbEvenements = await evaluer("document.querySelectorAll('#historique li').length");
+  verifier('T22 Détail d\'une demande avec son historique (au moins 3 événements)', true, nbEvenements >= 3, `${nbEvenements} événements`);
+  await capturer('capture_detail_historique.png');
+
+  await cliquer('#entete button');
+  await attendre("location.pathname.endsWith('connexion.html')");
+  await remplir('#email', 'paul.sossou@univ.test');
+  await remplir('#motDePasse', 'Demo1234!');
+  await soumettre('#formulaire-connexion');
+  await attendre("location.pathname.endsWith('encadreur.html')");
+  const dansMesEtudiants = await attendre(`!!document.querySelector('#liste-demandes li[data-id="${idA}"]')`);
+  verifier('T23 Encadreur : la demande affectée apparaît dans « Mes étudiants »', true, dansMesEtudiants);
+
+  await aller('/compte.html');
+  await remplir('#ancien', 'Demo1234!');
+  await remplir('#nouveau', 'court');
+  await soumettre('#formulaire-mot-de-passe');
+  await attendre("/au moins 10/.test(document.getElementById('erreur-generale').textContent)");
+  verifier('T24 Mot de passe trop court : refusé (400)', true, true, await texte('#erreur-generale'));
+
+  await remplir('#ancien', 'faux-mot-de-passe');
+  await remplir('#nouveau', 'NouveauMotDePasse1');
+  await soumettre('#formulaire-mot-de-passe');
+  await attendre("/Ancien mot de passe incorrect/.test(document.getElementById('erreur-generale').textContent)");
+  verifier('T25 Mot de passe actuel erroné : refusé (400)', true, true, await texte('#erreur-generale'));
+
+  await aller('/connexion.html');
+  const essais = await evaluer(`(async () => { const codes = []; for (let i = 0; i < 6; i++) { const r = await fetch('api/connexion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@univ.test', motDePasse: 'faux' }) }); codes.push(r.status); } return codes.join(','); })()`);
+  verifier('T26 Cinq échecs de connexion puis blocage (429)', '401,401,401,401,401,429', essais);
+
+  // T27 : aucune insertion de HTML brut dans le code de l'interface
   const fichiers = readdirSync(PUBLIC).filter((f) => /\.(html|js)$/.test(f));
   const risques = fichiers.flatMap((f) => (readFileSync(join(PUBLIC, f), 'utf8').match(/innerHTML|insertAdjacentHTML|document\.write/g) || []));
-  verifier('T15 Code de l\'interface : aucun innerHTML, insertAdjacentHTML ni document.write', 0, risques.length, fichiers.join(', '));
+  verifier('T27 Code de l\'interface : aucun innerHTML, insertAdjacentHTML ni document.write', 0, risques.length, fichiers.join(', '));
 } catch (erreur) {
   verifier('Exécution du scénario sans erreur technique', true, false, erreur.message);
 } finally {

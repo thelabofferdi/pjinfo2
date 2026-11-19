@@ -13,4 +13,16 @@ numero	cas	attendu	obtenu	conforme	detail
 12	T12 Après rafraîchissement : statuts Validée et Refusée conservés en base	true	true	OUI	
 13	T13 Côté étudiante : motif affiché comme texte, aucune exécution	true	true	OUI	{"xss":true,"images":0,"texte":true}
 14	T14 Étudiante sur la liste du personnel : 403	403	403	OUI	
-15	T15 Code de l'interface : aucun innerHTML, insertAdjacentHTML ni document.write	0	0	OUI	app.js, connexion.html, etudiant.html, responsable.html
+15	T15 Enregistrement en brouillon (statut Brouillon)	BROUILLON	BROUILLON	OUI	
+16	T16 Soumission du brouillon : statut Soumise	SOUMISE	SOUMISE	OUI	
+17	T17 Renvoi d'une demande refusée : Refusée, Brouillon, Soumise, motif retiré	true	true	OUI	
+18	T18 Action modifiant les données sans jeton CSRF : refusée (403)	403	403	OUI	
+19	T19 Déconnexion : retour à la connexion et session refusée ensuite (401)	true	true	OUI	statut après déconnexion : 401
+20	T20 Affectation d'un encadreur à une demande validée (200)	true	true	OUI	
+21	T21 Recherche par nom d'étudiant : seules les demandes correspondantes	true	true	OUI	
+22	T22 Détail d'une demande avec son historique (au moins 3 événements)	true	true	OUI	3 événements
+23	T23 Encadreur : la demande affectée apparaît dans « Mes étudiants »	true	true	OUI	
+24	T24 Mot de passe trop court : refusé (400)	true	true	OUI	Le nouveau mot de passe doit comporter au moins 10 caractères.
+25	T25 Mot de passe actuel erroné : refusé (400)	true	true	OUI	Ancien mot de passe incorrect.
+26	T26 Cinq échecs de connexion puis blocage (429)	401,401,401,401,401,429	401,401,401,401,401,429	OUI	
+27	T27 Code de l'interface : aucun innerHTML, insertAdjacentHTML ni document.write	0	0	OUI	app.js, compte.html, connexion.html, detail.html, encadreur.html, etudiant.html, responsable.html, secretariat.html

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Détail de la demande</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header id="entete" class="entete"></header>
+<main>
+  <p><a href="javascript:history.back()">Retour à la liste</a></p>
+  <h1>Détail de la demande</h1>
+  <p id="erreur-generale" class="erreur" role="alert" hidden></p>
+
+  <section class="carte" aria-labelledby="titre-demande">
+    <h2 id="titre-demande">Informations</h2>
+    <ul id="detail-demande" aria-label="Informations de la demande"></ul>
+  </section>
+
+  <section class="carte" aria-labelledby="titre-historique">
+    <h2 id="titre-historique">Historique des décisions</h2>
+    <ul id="historique" aria-label="Historique des décisions"></ul>
+  </section>
+</main>
+<script src="app.js"></script>
+<script>
+  enTete(sessionStorage.getItem('role'));
+  const erreurGenerale = document.getElementById('erreur-generale');
+  const detail = document.getElementById('detail-demande');
+  const historique = document.getElementById('historique');
+
+  async function charger() {
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (!id || !/^\d+$/.test(id)) return afficher(erreurGenerale, 'Demande introuvable.');
+    const resultat = await appeler('GET', `api/demandes/${id}`);
+    if (resultat.statut === 401) return allerVersConnexion();
+    if (resultat.statut !== 200) return afficher(erreurGenerale, texteDErreur(resultat));
+
+    detail.replaceChildren(ligneDemande(resultat.donnees.demande));
+    const evenements = resultat.donnees.historique;
+    if (evenements.length === 0) return listeVide(historique, 'Aucun événement enregistré.');
+    historique.replaceChildren(...evenements.map((evenement) => {
+      const li = document.createElement('li');
+      li.className = 'carte-demande';
+      const date = document.createElement('p');
+      date.className = 'aide';
+      date.textContent = evenement.date_evenement;
+      const action = document.createElement('p');
+      action.textContent = evenement.ancien_statut && evenement.ancien_statut !== evenement.nouveau_statut
+        ? `${LIBELLES_STATUT[evenement.ancien_statut]} → ${LIBELLES_STATUT[evenement.nouveau_statut]}`
+        : `Événement : ${evenement.motif ?? LIBELLES_STATUT[evenement.nouveau_statut]}`;
+      const auteur = document.createElement('p');
+      auteur.textContent = `Par ${personne(evenement.prenom, evenement.nom)}`;
+      li.append(date, action, auteur);
+      if (evenement.motif && evenement.ancien_statut !== evenement.nouveau_statut) {
+        const motif = document.createElement('p');
+        motif.textContent = `Motif : ${evenement.motif}`;
+        li.appendChild(motif);
+      }
+      return li;
+    }));
+  }
+
+  charger();
+</script>
+</body>
+</html>

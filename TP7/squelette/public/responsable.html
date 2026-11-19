@@ -7,26 +7,30 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<header id="entete" class="entete"></header>
 <main>
   <h1>Demandes à traiter</h1>
 
-  <div class="champ">
-    <label for="filtre-statut">Afficher les demandes au statut</label>
-    <select id="filtre-statut">
-      <option value="">Toutes</option>
-      <option value="SOUMISE">Soumises</option>
-      <option value="VALIDEE">Validées</option>
-      <option value="REFUSEE">Refusées</option>
-      <option value="BROUILLON">Brouillons</option>
-    </select>
-  </div>
+  <section class="carte">
+    <div class="champ filtre">
+      <label for="filtre-statut">Afficher les demandes au statut</label>
+      <select id="filtre-statut">
+        <option value="">Toutes</option>
+        <option value="SOUMISE">Soumises</option>
+        <option value="VALIDEE">Validées</option>
+        <option value="REFUSEE">Refusées</option>
+        <option value="BROUILLON">Brouillons</option>
+      </select>
+    </div>
+    <p id="erreur-generale" class="erreur" role="alert" hidden></p>
+    <p id="confirmation" class="confirmation" role="status"></p>
+  </section>
 
-  <p id="erreur-generale" class="erreur" role="alert" hidden></p>
-  <p id="confirmation" class="confirmation" role="status"></p>
   <ul id="liste-demandes" aria-label="Demandes"></ul>
 </main>
 <script src="app.js"></script>
 <script>
+  enTete('RESPONSABLE');
   const liste = document.getElementById('liste-demandes');
   const filtre = document.getElementById('filtre-statut');
   const erreurGenerale = document.getElementById('erreur-generale');
@@ -66,6 +70,7 @@
 
     const refuser = document.createElement('button');
     refuser.type = 'button';
+    refuser.className = 'secondaire';
     refuser.dataset.action = 'refuser';
     refuser.dataset.id = String(demande.id);
     refuser.textContent = `Refuser la demande n° ${demande.id}`;
@@ -80,6 +85,7 @@
     const visibles = demandes.filter((d) => choix === '' || d.statut === choix);
     if (visibles.length === 0) {
       const vide = document.createElement('li');
+      vide.className = 'carte-demande';
       vide.textContent = 'Aucune demande à afficher.';
       liste.replaceChildren(vide);
       return;

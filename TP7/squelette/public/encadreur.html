@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mes étudiants</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header id="entete" class="entete"></header>
+<main>
+  <h1>Mes étudiants</h1>
+  <p class="aide">Demandes qui vous sont affectées.</p>
+  <p id="erreur-generale" class="erreur" role="alert" hidden></p>
+  <ul id="liste-demandes" aria-label="Mes étudiants"></ul>
+</main>
+<script src="app.js"></script>
+<script>
+  enTete('ENCADREUR');
+  const liste = document.getElementById('liste-demandes');
+  const erreurGenerale = document.getElementById('erreur-generale');
+
+  async function chargerListe() {
+    const resultat = await appeler('GET', 'api/mes-etudiants');
+    if (resultat.statut === 401) return allerVersConnexion();
+    if (resultat.statut !== 200) return afficher(erreurGenerale, texteDErreur(resultat));
+    const demandes = resultat.donnees.demandes;
+    if (demandes.length === 0) return listeVide(liste, 'Aucun étudiant ne vous est affecté pour le moment.');
+    liste.replaceChildren(...demandes.map(ligneDemande));
+  }
+
+  chargerListe();
+</script>
+</body>
+</html>

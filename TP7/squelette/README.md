@@ -64,3 +64,28 @@ Le détail de l'erreur (hôte, message PDO) est écrit dans le journal du serveu
 - Les identifiants vivent dans `.env`, non versionné (voir `.gitignore`).
 - `.env.example` ne contient que des valeurs factices.
 - Les variables d'environnement, si elles sont définies, remplacent celles du fichier.
+
+## Interface web (TP7)
+
+Pages dans `public/`, servies par le même serveur :
+
+| Page | Rôle | Contenu |
+|---|---|---|
+| `connexion.html` | tous | Connexion, redirection selon le rôle |
+| `etudiant.html` | Étudiant | Dépôt (ou brouillon), suivi, soumission et renvoi après refus |
+| `responsable.html` | Responsable | Valider ou refuser avec motif |
+| `secretariat.html` | Secrétariat | Recherche par statut et par nom, affectation d'un encadreur |
+| `encadreur.html` | Encadreur | Demandes qui lui sont affectées |
+| `detail.html?id=N` | selon le rôle | Informations et historique des décisions |
+| `compte.html` | tous | Changer son mot de passe |
+
+Routes ajoutées pour l'interface : `GET /api/entreprises`, `GET /api/encadreurs`,
+`GET /api/demandes?statut=&nom=`, `GET /api/demandes/{id}`, `PATCH /api/demandes/{id}/encadreur`,
+`GET /api/mes-etudiants`, `GET /api/csrf`, `POST /api/deconnexion`, `PATCH /api/mon-mot-de-passe`.
+
+Sécurité : toute requête qui modifie des données exige l'en-tête `X-CSRF-Token` ; cinq échecs de
+connexion pour un même couple (adresse, e-mail) bloquent les essais pendant quinze minutes ; les mots
+de passe font au moins dix caractères au changement.
+
+Tests : `php tests/test_transitions.php` (unitaire) et `tests/e2e.mjs` (scénario dans Chrome, après
+`tests/lancer_stack.sh`).

@@ -1,18 +1,50 @@
-body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #1a1a1a; background: #fff; margin: 0; }
-main { max-width: 720px; margin: 0 auto; padding: 24px; }
-h1 { font-size: 1.6rem; }
-h2 { font-size: 1.2rem; margin-top: 1.8rem; }
+:root { --bleu: #1f3a5f; --gris: #4a5566; --rouge: #8a0000; --vert: #0b5a14; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.5; color: #1a1a1a; background: #f4f6f9; }
+
+.entete { background: var(--bleu); color: #fff; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 14px 24px; }
+.entete:empty { display: none; }
+.marque { font-weight: bold; font-size: 1.1rem; margin-right: auto; }
+.entete nav { display: flex; gap: 16px; }
+.entete nav a { color: #fff; }
+.entete nav a[aria-current="page"] { font-weight: bold; text-decoration: underline; text-underline-offset: 4px; }
+.entete button { background: #fff; color: var(--bleu); border-color: #fff; }
+
+main { max-width: 820px; margin: 0 auto; padding: 24px; }
+h1 { font-size: 1.6rem; color: var(--bleu); margin: 8px 0 18px; }
+h2 { font-size: 1.15rem; color: var(--bleu); margin: 0 0 12px; }
+.carte { background: #fff; border-radius: 8px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,.12); margin-bottom: 20px; }
+.centre { max-width: 420px; margin: 48px auto; }
+
 label { display: block; font-weight: bold; margin-bottom: 4px; }
-input, textarea, select { font: inherit; padding: 8px; border: 2px solid #555; border-radius: 4px; width: 100%; box-sizing: border-box; }
-input:focus, textarea:focus, select:focus, button:focus { outline: 3px solid #005fcc; outline-offset: 2px; }
-[aria-invalid="true"] { border-color: #8a0000; }
+input, textarea, select { font: inherit; width: 100%; padding: 9px 10px; border: 2px solid #7a8496; border-radius: 4px; background: #fff; }
+input:focus, textarea:focus, select:focus, button:focus, a:focus { outline: 3px solid #005fcc; outline-offset: 2px; }
+[aria-invalid="true"] { border-color: var(--rouge); }
 .champ { margin-bottom: 16px; }
-.aide { font-size: .9rem; color: #333; margin: 4px 0 0; }
-.erreur { color: #8a0000; font-weight: bold; margin: 6px 0 0; }
-.confirmation { color: #0b5a14; font-weight: bold; }
-button { font: inherit; padding: 10px 16px; margin: 6px 6px 6px 0; border: 2px solid #1a1a1a; background: #fff; border-radius: 4px; cursor: pointer; }
-button:hover { background: #eee; }
-ul { padding-left: 0; list-style: none; }
-li { border-bottom: 1px solid #ccc; padding: 10px 0; }
-.statut { font-weight: bold; }
+.aide { font-size: .9rem; color: var(--gris); margin: 4px 0 0; }
+.erreur { color: var(--rouge); font-weight: bold; margin: 6px 0 0; }
+.confirmation { color: var(--vert); font-weight: bold; margin: 10px 0 0; }
+
+button { font: inherit; padding: 10px 18px; margin: 4px 8px 4px 0; border: 2px solid var(--bleu); background: var(--bleu); color: #fff; border-radius: 4px; cursor: pointer; }
+button:hover { filter: brightness(1.12); }
+button.secondaire { background: #fff; color: var(--bleu); }
+
+ul { list-style: none; margin: 0; padding: 0; }
+.carte-demande { background: #fff; border: 1px solid #d5dbe5; border-radius: 8px; padding: 16px 18px; margin-bottom: 12px; }
+.carte-demande p { margin: 4px 0; }
+.entete-demande { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.statut { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: .85rem; font-weight: bold; }
+.statut-SOUMISE { background: #fff3cd; color: #5c4300; }
+.statut-VALIDEE { background: #d4edda; color: #0b4a18; }
+.statut-REFUSEE { background: #f8d7da; color: #6b0010; }
+.statut-BROUILLON { background: #e2e3e5; color: #333; }
+.actions { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e3e7ee; }
+.filtre { max-width: 320px; }
+.lien-action { display: inline-block; margin-top: 10px; color: var(--bleu); font-weight: bold; }
+.ligne-case { display: flex; align-items: center; gap: 10px; }
+.ligne-case input { width: auto; }
+.ligne-case label { margin: 0; }
 [hidden] { display: none !important; }
+
+@media (max-width: 600px) { main { padding: 16px; } .entete { padding: 12px 16px; } }
+main a { color: var(--bleu); font-weight: bold; }

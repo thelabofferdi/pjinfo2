@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mon compte</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header id="entete" class="entete"></header>
+<main class="centre">
+  <section class="carte" aria-labelledby="titre-compte">
+    <h1 id="titre-compte">Changer mon mot de passe</h1>
+    <form id="formulaire-mot-de-passe" novalidate>
+      <div class="champ">
+        <label for="ancien">Mot de passe actuel</label>
+        <input id="ancien" type="password" autocomplete="current-password" aria-describedby="erreur-generale">
+      </div>
+      <div class="champ">
+        <label for="nouveau">Nouveau mot de passe</label>
+        <p id="aide-nouveau" class="aide">Au moins 10 caractères.</p>
+        <input id="nouveau" type="password" autocomplete="new-password" aria-describedby="aide-nouveau">
+      </div>
+      <p id="erreur-generale" class="erreur" role="alert" hidden></p>
+      <button type="submit">Enregistrer le nouveau mot de passe</button>
+      <p id="confirmation" class="confirmation" role="status"></p>
+    </form>
+  </section>
+</main>
+<script src="app.js"></script>
+<script>
+  enTete(sessionStorage.getItem('role'));
+  const formulaire = document.getElementById('formulaire-mot-de-passe');
+  const erreurGenerale = document.getElementById('erreur-generale');
+  const confirmation = document.getElementById('confirmation');
+
+  formulaire.addEventListener('submit', async (evenement) => {
+    evenement.preventDefault();
+    afficher(erreurGenerale, '');
+    confirmation.textContent = '';
+    const resultat = await appeler('PATCH', 'api/mon-mot-de-passe', {
+      ancien: document.getElementById('ancien').value,
+      nouveau: document.getElementById('nouveau').value,
+    });
+    if (resultat.statut === 200) {
+      confirmation.textContent = 'Mot de passe modifié.';
+      formulaire.reset();
+      return;
+    }
+    if (resultat.statut === 401) return allerVersConnexion();
+    afficher(erreurGenerale, texteDErreur(resultat));
+  });
+</script>
+</body>
+</html>

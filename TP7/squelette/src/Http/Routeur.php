@@ -6,8 +6,11 @@ namespace App\Http;
 use Throwable;
 
 // Table des routes. Un segment {nom} capture une valeur (sans « / ») transmise à l'action.
+// Toute méthode qui modifie des données exige le jeton CSRF, sauf la connexion elle-même.
 final class Routeur
 {
+    private const SANS_JETON = ['/api/connexion'];
+
     /** @var list<array{methode: string, motif: string, action: callable}> */
     private array $routes = [];
 
@@ -39,6 +42,9 @@ final class Routeur
             }
             $parametres = array_filter($correspondance, 'is_string', ARRAY_FILTER_USE_KEY);
             try {
+                if ($methode !== 'GET' && !in_array($chemin, self::SANS_JETON, true)) {
+                    Session::exigerCsrf();
+                }
                 ($route['action'])($parametres);
             } catch (ApiException $e) {
                 Reponse::erreur($e->statutHttp, $e->getMessage());

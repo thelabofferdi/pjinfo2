@@ -7,50 +7,107 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<header id="entete" class="entete"></header>
 <main>
   <h1>Mes demandes de stage</h1>
 
-  <form id="formulaire-depot" novalidate>
-    <h2>Déposer une demande</h2>
-    <div class="champ">
-      <label for="entrepriseId">Identifiant de l'entreprise</label>
-      <p id="aide-entreprise" class="aide">1 : Atelier Numerique (Porto-Novo) — 2 : Reseau Plus (Cotonou)</p>
-      <input id="entrepriseId" name="entrepriseId" type="number" min="1" inputmode="numeric"
-             aria-describedby="aide-entreprise erreur-entreprise">
-      <p id="erreur-entreprise" class="erreur" role="alert" hidden></p>
-    </div>
-    <p id="erreur-generale" class="erreur" role="alert" hidden></p>
-    <button type="submit">Déposer la demande</button>
-    <p id="confirmation" class="confirmation" role="status"></p>
-  </form>
+  <section class="carte" aria-labelledby="titre-depot">
+    <h2 id="titre-depot">Déposer une demande</h2>
+    <form id="formulaire-depot" novalidate>
+      <div class="champ">
+        <label for="entrepriseId">Entreprise d'accueil</label>
+        <p id="aide-entreprise" class="aide">Choisissez une entreprise dans la liste, ou saisissez son numéro.</p>
+        <input id="entrepriseId" name="entrepriseId" type="number" min="1" inputmode="numeric" list="liste-entreprises"
+               aria-describedby="aide-entreprise erreur-entreprise">
+        <datalist id="liste-entreprises"></datalist>
+        <p id="erreur-entreprise" class="erreur" role="alert" hidden></p>
+      </div>
+      <div class="champ ligne-case">
+        <input id="brouillon" type="checkbox">
+        <label for="brouillon">Enregistrer en brouillon, à soumettre plus tard</label>
+      </div>
+      <p id="erreur-generale" class="erreur" role="alert" hidden></p>
+      <button type="submit">Enregistrer la demande</button>
+      <p id="confirmation" class="confirmation" role="status"></p>
+    </form>
+  </section>
 
-  <h2>Suivi de mes demandes</h2>
-  <p id="erreur-liste" class="erreur" role="alert" hidden></p>
-  <ul id="liste-demandes" aria-label="Mes demandes"></ul>
+  <section class="carte" aria-labelledby="titre-suivi">
+    <h2 id="titre-suivi">Suivi de mes demandes</h2>
+    <p id="erreur-liste" class="erreur" role="alert" hidden></p>
+    <ul id="liste-demandes" aria-label="Mes demandes"></ul>
+  </section>
 </main>
 <script src="app.js"></script>
 <script>
+  enTete(sessionStorage.getItem('role') || 'ETUDIANT');
   const formulaire = document.getElementById('formulaire-depot');
   const champ = document.getElementById('entrepriseId');
+  const brouillon = document.getElementById('brouillon');
   const erreurEntreprise = document.getElementById('erreur-entreprise');
   const erreurGenerale = document.getElementById('erreur-generale');
   const erreurListe = document.getElementById('erreur-liste');
   const confirmation = document.getElementById('confirmation');
   const liste = document.getElementById('liste-demandes');
+  const choixEntreprises = document.getElementById('liste-entreprises');
+
+  async function chargerEntreprises() {
+    const resultat = await appeler('GET', 'api/entreprises');
+    if (resultat.statut === 401) return allerVersConnexion();
+    if (resultat.statut !== 200) return afficher(erreurGenerale, texteDErreur(resultat));
+    for (const entreprise of resultat.donnees.entreprises) {
+      const option = document.createElement('option');
+      option.value = String(entreprise.id);
+      option.label = `${entreprise.nom} (${entreprise.ville})`;
+      choixEntreprises.appendChild(option);
+    }
+  }
 
   async function chargerListe() {
     const resultat = await appeler('GET', 'api/mes-demandes');
     if (resultat.statut === 401) return allerVersConnexion();
     if (resultat.statut !== 200) return afficher(erreurListe, texteDErreur(resultat));
     const demandes = resultat.donnees.demandes;
-    if (demandes.length === 0) {
-      const vide = document.createElement('li');
-      vide.textContent = 'Aucune demande pour le moment.';
-      liste.replaceChildren(vide);
-      return;
-    }
-    liste.replaceChildren(...demandes.map(ligneDemande));
+    if (demandes.length === 0) return listeVide(liste, 'Aucune demande pour le moment.');
+    liste.replaceChildren(...demandes.map((demande) => {
+      const li = ligneDemande(demande);
+      if (demande.statut === 'BROUILLON' || demande.statut === 'REFUSEE') {
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        const bouton = document.createElement('button');
+        bouton.type = 'button';
+        bouton.dataset.id = String(demande.id);
+        bouton.dataset.action = demande.statut === 'BROUILLON' ? 'soumettre' : 'renvoyer';
+        bouton.textContent = demande.statut === 'BROUILLON'
+          ? `Soumettre la demande n° ${demande.id}`
+          : `Corriger et soumettre à nouveau la demande n° ${demande.id}`;
+        actions.appendChild(bouton);
+        li.appendChild(actions);
+      }
+      return li;
+    }));
   }
+
+  liste.addEventListener('click', async (evenement) => {
+    const bouton = evenement.target.closest('button[data-action]');
+    if (!bouton) return;
+    const id = bouton.dataset.id;
+    afficher(erreurListe, '');
+    afficher(erreurGenerale, '');
+    let resultat;
+    if (bouton.dataset.action === 'renvoyer') {
+      resultat = await appeler('PATCH', `api/demandes/${id}/statut`, { statut: 'BROUILLON' });
+      if (resultat.statut === 200) resultat = await appeler('PATCH', `api/demandes/${id}/statut`, { statut: 'SOUMISE' });
+    } else {
+      resultat = await appeler('PATCH', `api/demandes/${id}/statut`, { statut: 'SOUMISE' });
+    }
+    if (resultat.statut === 200) {
+      confirmation.textContent = `Demande n° ${id} soumise.`;
+      return chargerListe();
+    }
+    if (resultat.statut === 401) return allerVersConnexion();
+    afficher(erreurGenerale, texteDErreur(resultat));
+  });
 
   formulaire.addEventListener('submit', async (evenement) => {
     evenement.preventDefault();
@@ -59,10 +116,17 @@
     champ.removeAttribute('aria-invalid');
     confirmation.textContent = '';
 
-    const resultat = await appeler('POST', 'api/demandes', { entrepriseId: Number(champ.value) });
+    const resultat = await appeler('POST', 'api/demandes', {
+      entrepriseId: Number(champ.value),
+      brouillon: brouillon.checked,
+    });
     if (resultat.statut === 201) {
-      confirmation.textContent = `Demande n° ${resultat.donnees.demande.id} déposée.`;
+      const numero = resultat.donnees.demande.id;
+      confirmation.textContent = brouillon.checked
+        ? `Demande n° ${numero} enregistrée en brouillon.`
+        : `Demande n° ${numero} déposée.`;
       champ.value = '';
+      brouillon.checked = false;
       return chargerListe();
     }
     if (resultat.statut === 401) return allerVersConnexion();
@@ -73,6 +137,7 @@
     afficher(erreurGenerale, texteDErreur(resultat));
   });
 
+  chargerEntreprises();
   chargerListe();
 </script>
 </body>
