@@ -1,0 +1,14 @@
+id	type	exigence	donnees	attendu	observe	conforme	preuve
+T-01	cas limite	EF-03	Valider la demande 999 (responsable)	404 : demande introuvable	"404 {""erreur"":""Demande introuvable.""}"	OUI	"HTTP 404 ; {""erreur"":""Demande introuvable.""}"
+T-02	cas limite	EF-03	Refuser la demande 2 sans motif (responsable)	400 ; statut inchangé (SOUMISE)	400 ; statut SOUMISE	OUI	"HTTP 400 ; {""erreur"":""Motif de refus obligatoire.""} ; statut avant SOUMISE, après SOUMISE"
+T-03	cas limite	EF-03	Valider la demande 3 déjà validée (responsable)	409 ; statut inchangé (VALIDEE)	409 ; statut VALIDEE	OUI	"HTTP 409 ; {""erreur"":""Transition VALIDEE vers VALIDEE interdite.""} ; statut VALIDEE"
+T-04	cas limite (remplace « date invalide »)	ENF-02	Créer une demande avec entrepriseId « abc » (étudiant)	400 ; aucune ligne créée	400 ; lignes 4 -> 4	OUI	"HTTP 400 ; {""erreur"":""Entreprise inconnue ou identifiant invalide.""}"
+T-05	autorisation	ENF-01	L'étudiante Aicha lit la demande 1, qui appartient à Koffi	403 ; aucune donnée du dossier	403 ; donnée du dossier : non	OUI	"HTTP 403 ; {""erreur"":""Cette demande ne vous est pas accessible.""}"
+T-06	injection	ENF-02	Identifiant « 1 OR 1=1 » dans l'URL, puis « ' OR '1'='1 » dans la recherche par nom	404 ; 0 résultat pour la recherche	identifiant : 404 ; recherche : 0 résultat(s)	OUI	identifiant : HTTP 404 ; recherche : HTTP 200, 0 résultat(s)
+T-07	sécurité	ENF-01	Contrôle de la table utilisateur après le jeu d'essai	tous les hachages commencent par $2y$ ; aucun mot de passe en clair	8 comptes ; 0 hachage(s) hors format bcrypt	OUI	8 comptes ; hachages hors $2y$ : 0
+T-08	CSRF	ENF-01	Création de demande par l'étudiante sans jeton	403 ; aucune ligne créée	403 ; lignes 4 -> 4	OUI	"HTTP 403 ; {""erreur"":""Jeton de sécurité absent ou invalide. Rechargez la page.""}"
+T-09	connexion	EF-01	Mot de passe faux pour un compte existant, puis e-mail inconnu	401 ; même message dans les deux cas	401 et 401 ; messages identiques	OUI	"mot de passe faux : 401 {""erreur"":""Identifiants incorrects.""} ; compte inconnu : 401 {""erreur"":""Identifiants incorrects.""}"
+T-10	connexion	EF-01	Cinq échecs pour secretariat@univ.test, puis un sixième	401 cinq fois, puis 429	401,401,401,401,401,429	OUI	codes successifs : [401, 401, 401, 401, 401, 429]
+T-11	sécurité	EF-01	Identifiant de session avant et après la connexion	identifiant de session changé	identifiant changé	OUI	avant : b22506f6… ; après : 0914ebcc…
+T-12	autorisation	EF-03	L'étudiante Aicha tente de valider sa propre demande 2	403 ; statut inchangé (SOUMISE)	403 ; statut SOUMISE	OUI	"HTTP 403 ; {""erreur"":""Ce rôle ne peut pas effectuer cette transition.""} ; statut SOUMISE"
+T-13	autorisation	ENF-01	L'étudiante Aicha tente de soumettre la demande 1 (de Koffi)	403 ; statut inchangé (BROUILLON)	403 ; statut BROUILLON	OUI	"HTTP 403 ; {""erreur"":""Cette demande ne vous appartient pas.""} ; statut BROUILLON"

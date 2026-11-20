@@ -1,0 +1,14 @@
+id	type	exigence	donnees	attendu
+T-01	cas limite	EF-03	Valider la demande 999 (responsable)	404 : demande introuvable
+T-02	cas limite	EF-03	Refuser la demande 2 sans motif (responsable)	400 ; statut inchangé (SOUMISE)
+T-03	cas limite	EF-03	Valider la demande 3 déjà validée (responsable)	409 ; statut inchangé (VALIDEE)
+T-04	cas limite (remplace « date invalide »)	ENF-02	Créer une demande avec entrepriseId « abc » (étudiant)	400 ; aucune ligne créée
+T-05	autorisation	ENF-01	L'étudiante Aicha lit la demande 1, qui appartient à Koffi	403 ; aucune donnée du dossier
+T-06	injection	ENF-02	Identifiant « 1 OR 1=1 » dans l'URL, puis « ' OR '1'='1 » dans la recherche par nom	404 ; 0 résultat pour la recherche
+T-07	sécurité	ENF-01	Contrôle de la table utilisateur après le jeu d'essai	tous les hachages commencent par $2y$ ; aucun mot de passe en clair
+T-08	CSRF	ENF-01	Création de demande par l'étudiante sans jeton	403 ; aucune ligne créée
+T-09	connexion	EF-01	Mot de passe faux pour un compte existant, puis e-mail inconnu	401 ; même message dans les deux cas
+T-10	connexion	EF-01	Cinq échecs pour secretariat@univ.test, puis un sixième	401 cinq fois, puis 429
+T-11	sécurité	EF-01	Identifiant de session avant et après la connexion	identifiant de session changé
+T-12	autorisation	EF-03	L'étudiante Aicha tente de valider sa propre demande 2	403 ; statut inchangé (SOUMISE)
+T-13	autorisation	ENF-01	L'étudiante Aicha tente de soumettre la demande 1 (de Koffi)	403 ; statut inchangé (BROUILLON)
